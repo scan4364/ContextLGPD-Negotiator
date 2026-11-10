@@ -1,34 +1,101 @@
-# Dependencies
-node_modules
-/.pnp
-.pnp.js
-
-# Testing
-/coverage
-
-# Next.js build output
+# =========================================================================
+# NEXT.JS & NODE.JS
+# =========================================================================
+node_modules/
 /.next/
 /out/
-
-# Production
 /build
+.pnp
+.pnp.js
 
-# Misc
-.DS_Store
-*.pem
+# Node package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
 
-# Local database (SQLite)
-/data/
-*.db
-*.sqlite
-
-# Environment variables
+# =========================================================================
+# ENVIRONMENT VARIABLES & SECRETS (LGPD & Security)
+# =========================================================================
 .env
 .env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
 
-# Vercel
+# =========================================================================
+# VERCEL & DEPLOYMENT
+# =========================================================================
 .vercel
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# =========================================================================
+# PYTHON & SCRIPTS
+# =========================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =========================================================================
+# OPERATING SYSTEMS & EDITORS
+# =========================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Visual Studio Code & IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# =========================================================================
+# LOCAL DATABASES & BACKUPS
+# =========================================================================
+/data/
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.tmp
+*.temp
+*~
