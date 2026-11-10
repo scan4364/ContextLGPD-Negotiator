@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   FolderKanban,
@@ -9,6 +9,7 @@ import {
   BookOpen,
   Plus,
   Download,
+  Upload,
   Info,
   Sparkles,
   Edit3,
@@ -26,13 +27,12 @@ import {
   Save,
   Code,
   Lock,
-  Mail,
+  Database,
   User,
   LogOut,
   RefreshCw,
   AlertTriangle,
-  FileQuestion,
-  Cloud
+  HardDrive
 } from 'lucide-react';
 import { INITIAL_SCENARIOS } from '@/lib/constants';
 
@@ -43,9 +43,6 @@ export default function Home() {
     email: 'pesquisador@cin.ufpe.br'
   });
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [authTab, setAuthTab] = useState('login');
-  const [loginEmail, setLoginEmail] = useState('pesquisador@cin.ufpe.br');
-  const [loginPassword, setLoginPassword] = useState('senha123');
 
   // AI & Model Settings
   const [provider, setProvider] = useState('gemini');
@@ -54,13 +51,7 @@ export default function Home() {
   const [savedMaskedKey, setSavedMaskedKey] = useState('');
   const [keyStatusMessage, setKeyStatusMessage] = useState(null);
 
-  // Cloud Database (Supabase) Settings
-  const [supabaseUrl, setSupabaseUrl] = useState('');
-  const [supabaseKey, setSupabaseKey] = useState('');
-  const [isCloudDbActive, setIsCloudDbActive] = useState(false);
-  const [cloudDbStatusMessage, setCloudDbStatusMessage] = useState(null);
-
-  // Scenarios State
+  // Scenarios State (Integrated Database via LocalStorage / Memory Vault)
   const [scenarios, setScenarios] = useState(INITIAL_SCENARIOS);
   const [activeScenario, setActiveScenario] = useState(null);
   const [drawerTab, setDrawerTab] = useState('diagnostics');
@@ -95,7 +86,9 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Load state from localStorage on mount
+  const fileInputRef = useRef(null);
+
+  // Load state from local storage on mount
   useEffect(() => {
     try {
       const savedScenarios = localStorage.getItem('context_lgpd_scenarios');
@@ -111,23 +104,30 @@ export default function Home() {
       if (savedProvider) setProvider(savedProvider);
       const savedModel = localStorage.getItem('context_lgpd_model');
       if (savedModel) setModel(savedModel);
-      const savedSupabaseUrl = localStorage.getItem('context_lgpd_supabase_url');
-      if (savedSupabaseUrl) {
-        setSupabaseUrl(savedSupabaseUrl);
-        setIsCloudDbActive(true);
-      }
+      const savedChat = localStorage.getItem('context_lgpd_chats');
+      if (savedChat) setChatMessages(JSON.parse(savedChat));
     } catch (e) {
       console.error('Error loading saved state:', e);
     }
   }, []);
 
-  // Sync scenarios to localStorage
+  // Persist scenarios to storage
   const persistScenarios = (newScenarios) => {
     setScenarios(newScenarios);
     try {
       localStorage.setItem('context_lgpd_scenarios', JSON.stringify(newScenarios));
     } catch (e) {
-      console.error('Error saving scenarios to localStorage:', e);
+      console.error('Error saving scenarios:', e);
+    }
+  };
+
+  // Persist chat to storage
+  const persistChat = (newChats) => {
+    setChatMessages(newChats);
+    try {
+      localStorage.setItem('context_lgpd_chats', JSON.stringify(newChats));
+    } catch (e) {
+      console.error('Error saving chats:', e);
     }
   };
 
@@ -274,10 +274,8 @@ export default function Home() {
     const currentThread = chatMessages[scnId] || [];
     const newThreadWithUser = [...currentThread, { role: 'user', content: currentMsg }];
 
-    setChatMessages((prev) => ({
-      ...prev,
-      [scnId]: newThreadWithUser
-    }));
+    const updatedChats = { ...chatMessages, [scnId]: newThreadWithUser };
+    persistChat(updatedChats);
 
     setIsChatLoading(true);
 
@@ -297,10 +295,11 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Falha na resposta do assistente');
 
-      setChatMessages((prev) => ({
-        ...prev,
+      const finalChats = {
+        ...updatedChats,
         [scnId]: [...newThreadWithUser, { role: 'assistant', content: data.reply }]
-      }));
+      };
+      persistChat(finalChats);
     } catch (err) {
       alert('Erro ao enviar mensagem: ' + err.message);
     } finally {
@@ -320,6 +319,57 @@ export default function Home() {
     setActiveScenario(updated);
     setDrawerTab('negotiated');
     alert('Requisito negociado atualizado com sucesso na tabela!');
+  };
+
+  // ----------------------------------------------------
+  // Backup & Restore Actions (Zero-Config DB Management)
+  // ----------------------------------------------------
+  const handleExportJsonBackup = () => {
+    const backupData = {
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      user,
+      provider,
+      model,
+      scenarios,
+      chatMessages
+    };
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_context_lgpd_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportJsonBackup = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+        if (Array.isArray(parsed.scenarios)) {
+          persistScenarios(parsed.scenarios);
+          if (parsed.chatMessages) persistChat(parsed.chatMessages);
+          if (parsed.model) setModel(parsed.model);
+          if (parsed.provider) setProvider(parsed.provider);
+          alert('Backup restaurado com sucesso! ' + parsed.scenarios.length + ' cenários carregados.');
+        } else if (Array.isArray(parsed)) {
+          persistScenarios(parsed);
+          alert('Cenários restaurados com sucesso! ' + parsed.length + ' cenários carregados.');
+        } else {
+          alert('Formato de backup inválido.');
+        }
+      } catch (err) {
+        alert('Erro ao processar arquivo JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   // ----------------------------------------------------
@@ -426,48 +476,17 @@ export default function Home() {
     }
   };
 
-  const handleTestCloudDb = () => {
-    if (!supabaseUrl.trim()) {
-      setCloudDbStatusMessage({ type: 'error', text: 'Informe a URL do Supabase.' });
-      return;
-    }
-    localStorage.setItem('context_lgpd_supabase_url', supabaseUrl.trim());
-    if (supabaseKey.trim()) {
-      localStorage.setItem('context_lgpd_supabase_key', supabaseKey.trim());
-    }
-    setIsCloudDbActive(true);
-    setCloudDbStatusMessage({ type: 'success', text: 'Configuração salva! O banco de dados em nuvem está pronto para sincronizar 24/7.' });
-  };
-
-  const handleCopySqlSchema = () => {
-    const sql = `-- Script para execução no Supabase SQL Editor:
-CREATE TABLE IF NOT EXISTS scenarios (
-    id TEXT PRIMARY KEY,
-    code TEXT NOT NULL,
-    title TEXT NOT NULL,
-    actor TEXT NOT NULL,
-    context_where TEXT,
-    context_who TEXT,
-    context_when TEXT,
-    context_what TEXT,
-    sensors TEXT,
-    qoc_desired TEXT,
-    trigger_condition TEXT,
-    expected_inference TEXT,
-    external_llm_flag BOOLEAN DEFAULT true,
-    raw_requirement TEXT NOT NULL,
-    status TEXT DEFAULT 'conflict_detected',
-    negotiated_requirement TEXT,
-    lgpd_diagnostics JSONB,
-    accountability_matrix JSONB,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);`;
-    navigator.clipboard.writeText(sql);
-    alert('Código SQL copiado! Cole no SQL Editor do seu projeto Supabase.');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-darkbg text-slate-100">
+      {/* Hidden file input for JSON import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportJsonBackup}
+        accept=".json"
+        className="hidden"
+      />
+
       {/* ============================================================== */}
       {/* TOP NAVBAR                                                     */}
       {/* ============================================================== */}
@@ -501,10 +520,10 @@ CREATE TABLE IF NOT EXISTS scenarios (
                 setIsSettingsOpen(true);
               }}
               className="flex items-center space-x-1.5 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-emerald-500/20 transition"
-              title="Clique para configurar o banco de dados online"
+              title="Banco de dados integrado. Sem limites, sem cadastros externos e sem GitHub Actions."
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>{isCloudDbActive ? '☁️ Supabase Nuvem' : '🟢 Vault Local'}</span>
+              <span>🟢 Banco Integrado (Zero-Config)</span>
             </div>
 
             <div
@@ -538,7 +557,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
               className="flex items-center space-x-1.5 text-xs bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 px-3 py-1.5 rounded-lg transition"
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Chave API & Nuvem</span>
+              <span className="hidden sm:inline">Configurações (API & Dados)</span>
             </button>
 
             <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
@@ -581,12 +600,21 @@ CREATE TABLE IF NOT EXISTS scenarios (
             </button>
 
             <button
-              onClick={handleRestoreDefaultScenarios}
+              onClick={() => fileInputRef.current?.click()}
               className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5"
-              title="Restaurar cenários originais do artigo"
+              title="Restaurar cenários a partir de arquivo JSON"
             >
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Cenários do Artigo</span>
+              <Upload className="w-4 h-4 text-sky-400" />
+              <span>Importar JSON</span>
+            </button>
+
+            <button
+              onClick={handleExportJsonBackup}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5"
+              title="Salvar backup completo em arquivo JSON"
+            >
+              <HardDrive className="w-4 h-4 text-indigo-400" />
+              <span>Backup JSON</span>
             </button>
 
             <button
@@ -1028,7 +1056,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
       </main>
 
       {/* ============================================================== */}
-      {/* MODAL: CONFIGURAÇÕES DE API & BANCO ONLINE                     */}
+      {/* MODAL: CONFIGURAÇÕES DE API & GERENCIAMENTO DE DADOS          */}
       {/* ============================================================== */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -1046,7 +1074,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
               </div>
               <div>
                 <h3 className="font-bold text-base text-white">Configurações do Sistema</h3>
-                <p className="text-xs text-slate-400">Modelo LLM e Banco de Dados Online (Vercel & Supabase)</p>
+                <p className="text-xs text-slate-400">Modelo LLM e Gerenciamento de Dados Integrado</p>
               </div>
             </div>
 
@@ -1069,7 +1097,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
                     : 'text-slate-400 border-transparent hover:text-slate-200'
                 }`}
               >
-                Banco Online (Supabase)
+                Banco Integrado & Backup
               </button>
             </div>
 
@@ -1167,73 +1195,57 @@ CREATE TABLE IF NOT EXISTS scenarios (
               </form>
             ) : (
               <div className="space-y-4">
-                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-slate-300">
-                  <div className="flex items-center space-x-2 font-semibold text-indigo-300 mb-1">
-                    <Cloud className="w-4 h-4" />
-                    <span>Banco de Dados Online o Tempo Todo (Supabase)</span>
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-slate-300">
+                  <div className="flex items-center space-x-2 font-semibold text-emerald-300 mb-1">
+                    <Database className="w-4 h-4" />
+                    <span>Sistema de Gerenciamento de Dados Integrado (Zero-Config)</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">
-                    Para manter seus cenários salvos na nuvem 24/7 ao hospedar na Vercel, conecte seu projeto gratuito do Supabase.
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    O sistema utiliza armazenamento persistente integrado diretamente no seu navegador. É a solução mais simples possível:
+                    <b> não possui limites de cota</b>, <b>não requer serviços externos</b> e <b>não precisa de GitHub Actions</b>.
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-                    URL do Projeto Supabase
-                  </label>
-                  <input
-                    type="text"
-                    value={supabaseUrl}
-                    onChange={(e) => setSupabaseUrl(e.target.value)}
-                    placeholder="https://seu-projeto.supabase.co"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-                    Chave Anon do Supabase
-                  </label>
-                  <input
-                    type="password"
-                    value={supabaseKey}
-                    onChange={(e) => setSupabaseKey(e.target.value)}
-                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={handleCopySqlSchema}
-                    className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5"
-                  >
-                    <Code className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Copiar Script SQL</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleTestCloudDb}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-md"
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Salvar Supabase</span>
-                  </button>
-                </div>
-
-                {cloudDbStatusMessage && (
-                  <div
-                    className={`p-3 rounded-xl text-xs ${
-                      cloudDbStatusMessage.type === 'success'
-                        ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
-                        : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
-                    }`}
-                  >
-                    {cloudDbStatusMessage.text}
+                <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Cenários Atuais Salvos:</span>
+                    <b className="text-white">{scenarios.length}</b>
                   </div>
-                )}
+                  <div className="flex justify-between text-slate-400">
+                    <span>Status de Armazenamento:</span>
+                    <b className="text-emerald-400">100% Operacional & Persistente</b>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={handleExportJsonBackup}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-1.5 shadow-md"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Baixar Backup Completo (JSON)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-1.5"
+                  >
+                    <Upload className="w-4 h-4 text-sky-400" />
+                    <span>Restaurar Backup (JSON)</span>
+                  </button>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleRestoreDefaultScenarios}
+                    className="w-full text-center text-xs text-amber-400 hover:text-amber-300 py-1"
+                  >
+                    ⚡ Restaurar os 4 cenários clássicos do pré-artigo científico
+                  </button>
+                </div>
               </div>
             )}
           </div>
