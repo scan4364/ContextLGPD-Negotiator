@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seminário - Contexto Computacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 90%;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #c084fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .btn-back-wrapper {
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.875rem 1.75rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-back:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-back svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-back:hover svg {
+            transform: translateX(-4px);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seminário</h1>
+        <p class="subtitle">Contexto Computacional</p>
+
+        <h2 style="text-align:center; font-size:1.8rem; margin:2rem 0 1rem; color: var(--text-main);">1ª Rodada</h2>
+        <div class="grid">
+            <a href="dinamica-abertura.html" class="card">
+                <span class="card-icon">🚀</span>
+                <h2 class="card-title">Dinâmica de Abertura</h2>
+                <p class="card-desc">Participe da dinâmica inicial e imersiva do nosso seminário.</p>
+            </a>
+            
+            <a href="context-aware-systems.html" class="card">
+                <span class="card-icon">🧠</span>
+                <h2 class="card-title">Sistemas Cientes de Contexto</h2>
+                <p class="card-desc">Explore interativamente os conceitos de sistemas cientes de contexto.</p>
+            </a>
+
+            <a href="2582-Article Text-4684-1-10-20150521 (1).pdf" target="_blank" class="card">
+                <span class="card-icon">📄</span>
+                <h2 class="card-title">Artigo em PDF</h2>
+                <p class="card-desc">Acesse e leia o artigo base referenciado neste seminário.</p>
+            </a>
+        </div>
+
+        <h2 style="text-align:center; font-size:1.8rem; margin:3rem 0 1rem; color: var(--text-main); animation: fadeInUp 1s ease-out 0.7s both;">2ª Rodada</h2>
+        <div class="grid" style="animation: fadeInUp 1s ease-out 0.8s both;">
+            <a href="Dinâmica do intervalo_ contexto em duas etapas.html" class="card">
+                <span class="card-icon">⏱️</span>
+                <h2 class="card-title">Dinâmica do Intervalo</h2>
+                <p class="card-desc">Dinâmica de contexto em duas etapas.</p>
+            </a>
+
+            <a href="Dinâmica individual_ tem critério de aceitação aqui_.html" class="card">
+                <span class="card-icon">👤</span>
+                <h2 class="card-title">Dinâmica Individual</h2>
+                <p class="card-desc">Análise de critérios de aceitação.</p>
+            </a>
+
+            <a href="A_ChatGPT-Powered_Tool_for_Automating_Context-Aware_Acceptance_Criteria_Generation_for_User_Stories.pdf" target="_blank" class="card">
+                <span class="card-icon">📄</span>
+                <h2 class="card-title">Artigo ChatGPT</h2>
+                <p class="card-desc">Automação de critérios de aceitação cientes de contexto.</p>
+            </a>
+
+            <a href="Slides_ contexto e critérios de aceitação com LLMs.html" target="_blank" class="card">
+                <span class="card-icon">📊</span>
+                <h2 class="card-title">Slides</h2>
+                <p class="card-desc">Contexto e critérios de aceitação com LLMs.</p>
+            </a>
+
+            <a href="#" onclick="checkPassword(event, 'Roteiro do seminário_ contexto e critérios de aceitação.html')" class="card">
+                <span class="card-icon">🔒</span>
+                <h2 class="card-title">Roteiro do Seminário</h2>
+                <p class="card-desc">Acesso restrito (requer senha).</p>
+            </a>
+        </div>
+
+        <div class="btn-back-wrapper">
+            <a href="https://cin.ufpe.br/~scan/" class="btn-back">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Voltar para a Página Inicial
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword(event, url) {
+            event.preventDefault();
+            const pass = prompt("Digite a senha para acessar o Roteiro:");
+            if (pass === "123") {
+                window.location.href = url;
+            } else if (pass !== null && pass !== "") {
+                alert("Senha incorreta!");
+            }
+        }
+    </script>
+</body>
+</html>

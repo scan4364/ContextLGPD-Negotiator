@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextLGPD-Negotiator — Engenharia de Requisitos & Privacidade</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cin: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        },
+                        darkbg: '#0b0f19',
+                        cardbg: '#111827',
+                        borderbg: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col font-sans selection:bg-cin-600 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-borderbg bg-cardbg/80 backdrop-blur sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center space-x-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">ContextLGPD</span>
+                        <span class="text-xs bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-full">UFPE / CIn</span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">Mediação entre Computação Sensível ao Contexto e a LGPD</p>
+                </div>
+            </div>
+
+            <!-- Project Selector & Status Pills (When logged in) -->
+            <div id="nav-workspace-area" class="hidden md:flex items-center space-x-3">
+                <!-- Project Selector Dropdown -->
+                <div class="relative">
+                    <button id="btn-project-dropdown" class="flex items-center space-x-2 text-xs font-medium bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-200 transition">
+                        <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-400"></i>
+                        <span id="current-project-title" class="truncate max-w-[180px]">Carregando projeto...</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                    </button>
+                    <!-- Project Dropdown Menu -->
+                    <div id="project-dropdown-menu" class="hidden absolute left-0 mt-2 w-64 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-2 z-50">
+                        <div class="text-xs text-slate-400 px-2 py-1 font-semibold uppercase tracking-wider">Projetos Ativos</div>
+                        <div id="project-list-items" class="space-y-1 max-h-48 overflow-y-auto my-1">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="pt-2 border-t border-slate-700">
+                            <button id="btn-modal-new-project" class="w-full text-left text-xs text-indigo-400 hover:text-indigo-300 flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-700/50">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                <span>Criar Novo Projeto</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Pill: Database -->
+                <div id="status-db-pill" class="flex items-center space-x-1.5 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-emerald-500/20" title="Clique para configurar o banco de dados online (Supabase)">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="status-db-text">SQLite Local</span>
+                </div>
+
+                <!-- Status Pill: AI Model -->
+                <div id="status-ai-pill" class="flex items-center space-x-1.5 text-xs bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-2.5 py-1 rounded-full cursor-pointer hover:bg-indigo-500/20" title="Clique para trocar o modelo ou inserir chave de API">
+                    <i data-lucide="bot" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span id="status-ai-text">Gemini 2.0 Flash</span>
+                </div>
+            </div>
+
+            <!-- User Area & Settings -->
+            <div id="nav-user-area" class="flex items-center space-x-3">
+                <button id="btn-open-theory-modal" class="hidden sm:flex items-center space-x-1 text-xs text-slate-400 hover:text-slate-200 bg-slate-800/60 border border-slate-700/80 px-2.5 py-1.5 rounded-lg transition" title="Ver Teoria, Paradoxos e Arquitetura ACME">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Paradoxos LGPD</span>
+                </button>
+
+                <button id="btn-open-settings" class="hidden sm:flex items-center space-x-1.5 text-xs bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 px-3 py-1.5 rounded-lg transition">
+                    <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                    <span>Chave API & Nuvem</span>
+                </button>
+
+                <div id="user-profile-wrapper" class="hidden items-center space-x-2 pl-2 border-l border-slate-800">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-indigo-300" id="user-avatar">
+                        U
+                    </div>
+                    <span id="user-display-name" class="text-xs font-medium text-slate-300 hidden lg:inline-block max-w-[120px] truncate">Pesquisador</span>
+                    <button id="btn-logout" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg transition" title="Sair da Conta">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: AUTHENTICATION (Login & Register)     -->
+        <!-- ============================================== -->
+        <section id="view-auth" class="flex-1 flex items-center justify-center py-8">
+            <div class="w-full max-w-md bg-cardbg border border-borderbg rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="text-center mb-6">
+                    <div class="inline-flex p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-3">
+                        <i data-lucide="shield-check" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">ContextLGPD-Negotiator</h2>
+                    <p class="text-xs text-slate-400 mt-1">Ferramenta baseada em IA para Negociação de Requisitos Sensíveis ao Contexto frente à LGPD</p>
+                </div>
+
+                <!-- Auth Tabs -->
+                <div class="flex border-b border-slate-800 mb-6">
+                    <button id="tab-btn-login" class="flex-1 pb-3 text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 transition">Entrar</button>
+                    <button id="tab-btn-register" class="flex-1 pb-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition">Novo Cadastro</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-login" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">E-mail</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                            <input type="email" id="login-email" value="pesquisador@cin.ufpe.br" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Senha</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                            <input type="password" id="login-password" value="senha123" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2 text-sm">
+                            <i data-lucide="log-in" class="w-4 h-4"></i>
+                            <span>Acessar o Sistema</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Demo Credentials Box -->
+                    <div class="mt-4 p-3 bg-slate-900/60 border border-slate-800 rounded-xl text-xs text-slate-400">
+                        <div class="flex items-center justify-between font-semibold text-slate-300 mb-1">
+                            <span class="flex items-center space-x-1">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                                <span>Acesso de Demonstração (CIn-UFPE):</span>
+                            </span>
+                            <button type="button" id="btn-fill-demo" class="text-indigo-400 hover:underline">Preencher</button>
+                        </div>
+                        <p class="text-[11px] text-slate-400">E-mail: <code class="text-indigo-300">pesquisador@cin.ufpe.br</code></p>
+                        <p class="text-[11px] text-slate-400">Senha: <code class="text-indigo-300">senha123</code></p>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nome Completo</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                            <input type="text" id="reg-name" placeholder="Ex: Samuel Celso" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">E-mail Institucional ou Pessoal</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                            <input type="email" id="reg-email" placeholder="seuemail@exemplo.com" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Criar Senha de Acesso</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2 text-sm">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>Criar Minha Conta</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="auth-error-msg" class="hidden mt-4 p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+                    <span id="auth-error-text">Erro ao autenticar.</span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: WORKSPACE (Cenários & Chat de Negociação) -->
+        <!-- ============================================== -->
+        <section id="view-workspace" class="hidden flex-1 flex flex-col space-y-6">
+
+            <!-- Subheader Banner / Actions Toolbar -->
+            <div class="bg-cardbg border border-borderbg rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xl">
+                <div>
+                    <h1 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <span>Tabela de Cenários de Usuário (Engenharia de Requisitos)</span>
+                        <span class="text-xs bg-slate-800 text-indigo-300 border border-slate-700 px-2 py-0.5 rounded-full font-normal">Sommerville / Robertson</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Especifique as variáveis de contexto implícito e deixe o motor de IA negociar degradação de granularidade, gatilhos de borda e conformidade com a LGPD.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="btn-add-scenario" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Novo Cenário</span>
+                    </button>
+
+                    <button id="btn-export-markdown" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5" title="Baixar relatório RIPD em Markdown">
+                        <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Exportar RIPD (Art. 6º, X)</span>
+                    </button>
+
+                    <button id="btn-show-paradoxes-guide" class="bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-slate-700 text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5">
+                        <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
+                        <span>Os 3 Paradoxos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABELA INTERATIVA DE CENÁRIOS DE USO -->
+            <div class="bg-cardbg border border-borderbg rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-borderbg flex items-center justify-between bg-slate-900/40">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="table" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Especificação de Cenários Sensíveis ao Contexto</span>
+                    </div>
+                    <span id="scenarios-count-badge" class="text-xs text-slate-400">0 cenários cadastrados</span>
+                </div>
+
+                <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-900/80 text-slate-300 uppercase tracking-wider sticky top-0 z-10 border-b border-borderbg backdrop-blur">
+                            <tr>
+                                <th class="p-3 w-16 text-center">Código</th>
+                                <th class="p-3 min-w-[180px]">Título & Ator</th>
+                                <th class="p-3 min-w-[200px]">Dimensões do Contexto (Abowd/Dey)</th>
+                                <th class="p-3 min-w-[160px]">Sensores / Fontes Implícitas</th>
+                                <th class="p-3 min-w-[140px]">QoC Desejada</th>
+                                <th class="p-3 min-w-[150px]">Gatilho (Trigger)</th>
+                                <th class="p-3 min-w-[160px]">Inferência Esperada</th>
+                                <th class="p-3 w-32 text-center">Status LGPD</th>
+                                <th class="p-3 w-40 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scenarios-table-body" class="divide-y divide-borderbg text-slate-300">
+                            <!-- Injected dynamically by app.js -->
+                            <tr>
+                                <td colspan="9" class="p-8 text-center text-slate-500">
+                                    <div class="flex flex-col items-center justify-center space-y-2">
+                                        <i data-lucide="loader" class="w-6 h-6 animate-spin text-indigo-500"></i>
+                                        <span>Carregando cenários da base de dados...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PAINEL DE NEGOCIAÇÃO & CHAT INTELIGENTE (SPLIT DRAWER) -->
+            <div id="negotiation-drawer" class="hidden bg-cardbg border border-borderbg rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all">
+                <!-- Drawer Header -->
+                <div class="p-4 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-b border-borderbg flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 id="drawer-scenario-title" class="font-bold text-sm text-white">Negociação: CEN-01</h3>
+                                <span id="drawer-scenario-status-badge" class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Em Conformidade</span>
+                            </div>
+                            <p class="text-xs text-slate-400">Motor de Mediação ContextLGPD-Negotiator (ADL ACME & BPMN)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button id="btn-re-negotiate" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Re-negociar com IA</span>
+                        </button>
+                        <button id="btn-close-drawer" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Drawer Navigation Tabs -->
+                <div class="flex border-b border-borderbg bg-slate-900/50 text-xs px-4">
+                    <button id="tab-drawer-diagnostics" class="py-2.5 px-4 font-semibold text-indigo-400 border-b-2 border-indigo-500 transition flex items-center space-x-1.5">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                        <span>1. Diagnóstico & Paradoxos</span>
+                    </button>
+                    <button id="tab-drawer-negotiated" class="py-2.5 px-4 font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition flex items-center space-x-1.5">
+                        <i data-lucide="check-shield" class="w-3.5 h-3.5"></i>
+                        <span>2. Requisito Negociado (Privacy by Design)</span>
+                    </button>
+                    <button id="tab-drawer-accountability" class="py-2.5 px-4 font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition flex items-center space-x-1.5">
+                        <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>
+                        <span>3. Matriz de Accountability (Art. 6º, X)</span>
+                    </button>
+                    <button id="tab-drawer-chat" class="py-2.5 px-4 font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition flex items-center space-x-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                        <span>4. Chat de Refinamento</span>
+                    </button>
+                </div>
+
+                <!-- Drawer Body Content -->
+                <div class="p-5 flex-1 min-h-[300px] overflow-y-auto">
+
+                    <!-- Tab 1: Diagnóstico e Paradoxos -->
+                    <div id="content-drawer-diagnostics" class="space-y-4">
+                        <div class="p-3 bg-slate-900/60 border border-slate-800 rounded-xl">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Requisito Bruto Tradicional (Entrada)</div>
+                            <p id="drawer-raw-requirement-text" class="text-xs text-slate-200 italic font-mono bg-black/30 p-2.5 rounded-lg border border-slate-800">
+                                "O sistema deve coletar continuamente o GPS e acelerômetro..."
+                            </p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
+                                <span>Atritos Regulatórios Identificados pelo PrivacyGuard:</span>
+                            </h4>
+                            <div id="drawer-paradoxes-list" class="space-y-2">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Requisito Negociado -->
+                    <div id="content-drawer-negotiated" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Requisito Tradicional -->
+                            <div class="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl">
+                                <div class="flex items-center space-x-2 text-rose-400 font-bold text-xs uppercase mb-2">
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                    <span>Especificação Tradicional (Violadora)</span>
+                                </div>
+                                <p id="drawer-compare-before" class="text-xs text-slate-300 leading-relaxed font-mono">
+                                    -
+                                </p>
+                            </div>
+
+                            <!-- Requisito Negociado -->
+                            <div class="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                                <div class="flex items-center space-x-2 text-emerald-400 font-bold text-xs uppercase mb-2">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    <span>Especificação Negociada (A 'Cola' Contexto + LGPD)</span>
+                                </div>
+                                <p id="drawer-compare-after" class="text-xs text-emerald-200 font-medium leading-relaxed font-mono">
+                                    -
+                                </p>
+                                <div class="mt-3 pt-3 border-t border-emerald-500/20 flex justify-end">
+                                    <button id="btn-copy-negotiated" class="text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 flex items-center space-x-1">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span>Copiar Requisito</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Matriz de Accountability -->
+                    <div id="content-drawer-accountability" class="hidden space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                                Documentação de Comprovação Regulatória (Art. 6º, X - Accountability)
+                            </h4>
+                            <span class="text-[11px] text-slate-400">Pronta para auditoria ANPD</span>
+                        </div>
+                        <div class="overflow-x-auto border border-borderbg rounded-xl">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-900 text-slate-300 uppercase">
+                                    <tr>
+                                        <th class="p-3 min-w-[150px]">Variável de Contexto</th>
+                                        <th class="p-3 min-w-[200px]">Tratamento Técnico Aplicado</th>
+                                        <th class="p-3 min-w-[200px]">Base Legal / Justificativa LGPD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="drawer-accountability-tbody" class="divide-y divide-borderbg text-slate-300">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Chat Interativo de Refinamento -->
+                    <div id="content-drawer-chat" class="hidden flex flex-col h-[400px]">
+                        <!-- Messages Thread -->
+                        <div id="drawer-chat-messages" class="flex-1 overflow-y-auto space-y-3 p-2 bg-slate-950/40 rounded-xl border border-slate-800">
+                            <!-- Injected dynamically -->
+                        </div>
+
+                        <!-- Chat Input Box -->
+                        <div class="pt-3">
+                            <form id="form-drawer-chat" class="flex items-center space-x-2">
+                                <input type="text" id="input-drawer-chat-message" placeholder="Peça ajustes ao ContextLGPD-Negotiator (ex: aumente a degradação do GPS, justifique Art. 33)..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition flex items-center justify-center shrink-0">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL: CONFIGURAÇÕES DE API & BANCO ONLINE    -->
+    <!-- ============================================== -->
+    <div id="modal-settings" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-cardbg border border-borderbg rounded-2xl max-w-xl w-full p-6 shadow-2xl relative">
+            <button id="btn-close-settings-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-5">
+                <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i data-lucide="sliders" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-white">Configurações do Sistema</h3>
+                    <p class="text-xs text-slate-400">Chave de API do Modelo LLM e Banco de Dados Online</p>
+                </div>
+            </div>
+
+            <!-- Modal Tabs -->
+            <div class="flex border-b border-slate-800 mb-5">
+                <button id="modal-tab-api" class="pb-2 px-3 text-xs font-semibold text-indigo-400 border-b-2 border-indigo-500 transition">Modelo & Chave API</button>
+                <button id="modal-tab-db" class="pb-2 px-3 text-xs font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition">Banco Online (Supabase)</button>
+            </div>
+
+            <!-- Form: API Settings -->
+            <form id="form-settings-api" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Provedor de Inteligência Artificial</label>
+                    <select id="setting-provider" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="gemini">Google Gemini (Oficial Google DeepMind / Google AI)</option>
+                        <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+                        <option value="groq">Groq (Llama 3.3 70B Ultra Rápido)</option>
+                        <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Modelo de Linguagem (LLM)</label>
+                    <select id="setting-model" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="gemini-2.0-flash">gemini-2.0-flash (Recomendado - Mais rápido e inteligente)</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro (Janela Long-Context de 2M tokens)</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Leve e eficiente)</option>
+                        <option value="gpt-4o">gpt-4o (OpenAI Omni)</option>
+                        <option value="gpt-4o-mini">gpt-4o-mini (OpenAI Leve)</option>
+                        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (Groq)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Chave de API do Provedor</label>
+                        <span id="label-masked-key" class="text-[11px] text-emerald-400 font-mono"></span>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="setting-api-key" placeholder="Insira ou altere sua chave de API..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="mt-1 flex items-center space-x-1.5 text-[11px] text-slate-400">
+                        <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Armazenada com criptografia de ponta <b>AES-256-GCM</b> no servidor.</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-between">
+                    <button type="button" id="btn-test-api-key" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5">
+                        <i data-lucide="plug" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span>Testar Conexão</span>
+                    </button>
+
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/30">
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                        <span>Salvar Configurações</span>
+                    </button>
+                </div>
+
+                <div id="settings-status-box" class="hidden p-3 rounded-xl text-xs"></div>
+            </form>
+
+            <!-- Form: Cloud DB Settings -->
+            <form id="form-settings-db" class="space-y-4 hidden">
+                <div class="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-slate-300">
+                    <div class="flex items-center space-x-2 font-semibold text-indigo-300 mb-1">
+                        <i data-lucide="cloud" class="w-4 h-4"></i>
+                        <span>Banco de Dados Online o Tempo Todo (Supabase / Nuvem)</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        O sistema utiliza SQLite local por padrão (100% funcional). Caso queira mantê-lo online 24/7 na nuvem pública gratuitamente, você pode conectar uma conta Supabase.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">URL do Projeto Supabase</label>
+                    <input type="text" id="setting-supabase-url" placeholder="https://seu-projeto.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Chave de API do Supabase (Anon Key)</label>
+                    <input type="password" id="setting-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="pt-2 flex items-center justify-between">
+                    <button type="button" id="btn-copy-sql-schema" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5" title="Copia o script SQL para colar no editor do Supabase">
+                        <i data-lucide="code" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span>Copiar Script SQL</span>
+                    </button>
+
+                    <button type="button" id="btn-test-cloud-db" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-md">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        <span>Testar Conexão Supabase</span>
+                    </button>
+                </div>
+
+                <div id="db-status-box" class="hidden p-3 rounded-xl text-xs"></div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- MODAL: CRIAR / EDITAR CENÁRIO DE REQUISITOS    -->
+    <!-- ============================================== -->
+    <div id="modal-scenario-form" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-borderbg rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-8">
+            <button id="btn-close-scenario-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i data-lucide="file-plus-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 id="modal-scenario-title" class="font-bold text-base text-white">Cadastrar Cenário de Usuário</h3>
+                    <p class="text-xs text-slate-400">Estruturação segundo o padrão de Engenharia de Requisitos Sensíveis ao Contexto</p>
+                </div>
+            </div>
+
+            <form id="form-scenario" class="space-y-4">
+                <input type="hidden" id="form-scenario-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Código</label>
+                        <input type="text" id="scenario-input-code" placeholder="Ex: CEN-05" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Título do Cenário</label>
+                        <input type="text" id="scenario-input-title" placeholder="Ex: Assistente de Rota Inteligente no Trânsito" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Ator Principal / Entidade</label>
+                    <input type="text" id="scenario-input-actor" placeholder="Ex: Motorista em Deslocamento / Paciente / Consumidor" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Dimensões Primárias do Contexto -->
+                <div class="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-2">
+                    <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Dimensões Primárias de Contexto (Abowd et al., 1999)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span class="text-slate-400">Onde (Where / Localização):</span>
+                            <input type="text" id="scenario-input-where" placeholder="Ex: GPS contínuo, Geofencing" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 mt-1 text-white">
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Quem (Who / Identidade):</span>
+                            <input type="text" id="scenario-input-who" placeholder="Ex: Perfil de usuário, biometria" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 mt-1 text-white">
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Quando (When / Tempo):</span>
+                            <input type="text" id="scenario-input-when" placeholder="Ex: 24/7 contínuo ou horário comercial" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 mt-1 text-white">
+                        </div>
+                        <div>
+                            <span class="text-slate-400">O Quê (What / Atividade):</span>
+                            <input type="text" id="scenario-input-what" placeholder="Ex: Em deslocamento, dormindo" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 mt-1 text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Sensores / Fontes Implícitas</label>
+                        <input type="text" id="scenario-input-sensors" placeholder="Ex: GPS, Acelerômetro, Microfone" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Qualidade de Contexto (QoC)</label>
+                        <input type="text" id="scenario-input-qoc" placeholder="Ex: Precisão < 10m, taxa 1s" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Gatilho de Ativação (Trigger)</label>
+                        <input type="text" id="scenario-input-trigger" placeholder="Ex: Velocidade > 15 km/h detectada" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Inferência Esperada (Finalidade)</label>
+                        <input type="text" id="scenario-input-inference" placeholder="Ex: Situação 'Usuário_Em_Trânsito'" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Requisito Bruto em Linguagem Natural</label>
+                    <textarea id="scenario-input-raw" rows="3" placeholder="Ex: REQ-01: O sistema deve monitorar continuamente o GPS e o acelerômetro do usuário e enviar para a nuvem para personalizar a rota..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="scenario-input-external-llm" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700">
+                    <label for="scenario-input-external-llm" class="text-xs text-slate-300">
+                        Envia janela de contexto implícito para <b>LLM Externa / Nuvem Internacional</b> (Gera risco Art. 33 LGPD)
+                    </label>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button type="button" id="btn-cancel-scenario-modal" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs transition">Cancelar</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-indigo-600/30 flex items-center space-x-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Salvar Cenário</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- MODAL: TEORIA, PARADOXOS LGPD & ACME          -->
+    <!-- ============================================== -->
+    <div id="modal-theory" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-borderbg rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative my-8 max-h-[85vh] overflow-y-auto">
+            <button id="btn-close-theory-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-5">
+                <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <i data-lucide="book-open" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-white">Fundamentação Científica: Os Três Paradoxos</h3>
+                    <p class="text-xs text-slate-400">Conflito entre Computação Sensível ao Contexto e a LGPD (CIn-UFPE)</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+                <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                    <h4 class="font-bold text-indigo-400 flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span>1. O Paradoxo da Inferência (Fusão de Sensores vs. Princípio da Necessidade - Art. 6º, III)</span>
+                    </h4>
+                    <p>
+                        Para deduzir situações de alto nível (ex: <i>"Usuário Dirigindo"</i>), o motor de inferência precisa fundir múltiplos sensores (GPS, acelerômetro, calendário, giroscópio). Contudo, o Art. 6º, III da LGPD impõe a limitação do tratamento ao mínimo necessário, tornando ilícita a coleta indiscriminada sem comprovação técnica de vínculo estrito.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                    <h4 class="font-bold text-amber-400 flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>2. O Paradoxo da Proatividade (Monitoramento 24/7 vs. Finalidade e Adequação - Art. 6º, I e II)</span>
+                    </h4>
+                    <p>
+                        Para atuar de forma proativa (ex: Geofencing), o sistema precisa monitorar continuamente o ambiente em segundo plano. Sob a ótica da LGPD, reter telemetria durante o dia inteiro para atuar apenas por alguns minutos fere o princípio da adequação e da prevenção.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                    <h4 class="font-bold text-rose-400 flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>3. O Paradoxo do Largo Contexto e Nuvem Externa (LLMs vs. Transferência Internacional - Art. 33)</span>
+                    </h4>
+                    <p>
+                        Aplicações baseadas em LLMs alimentam janelas massivas de contexto com históricos comportamentais e telemetria para servidores estrangeiros. Sem sanitização na borda (Edge Computing) e conversão para rótulos semânticos abstratos, configura-se violação à transferência internacional e ao Art. 46 (Segurança Técnica).
+                    </p>
+                </div>
+
+                <div class="p-4 bg-indigo-950/30 border border-indigo-800/40 rounded-xl space-y-2">
+                    <h4 class="font-bold text-white flex items-center space-x-1.5">
+                        <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+                        <span>A Arquitetura Formal ADL ACME: ContextLGPD-Negotiator</span>
+                    </h4>
+                    <p>
+                        A ferramenta implementa 5 componentes arquiteturais formalizados na ADL ACME:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-400 font-mono text-[11px]">
+                        <li><code>ReqInputInterface</code>: Interação com o engenheiro de requisitos.</li>
+                        <li><code>ContextParserEngine</code>: Extrai dimensões (Where, Who, When, What) e QoC.</li>
+                        <li><code>PrivacyGuardSanitizer</code>: Avalia artigos da LGPD e impõe sanitização na borda.</li>
+                        <li><code>ExternalLLMReasoning</code>: Motor agêntico em nuvem internacional com retenção zero.</li>
+                        <li><code>RegulatoryDocGenerator</code>: Emite a Matriz de Accountability (Art. 6º, X).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script>
+        // Initialize Lucide icons on start
+        lucide.createIcons();
+    </script>
+</body>
+</html>

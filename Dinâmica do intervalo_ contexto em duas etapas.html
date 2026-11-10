@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dinâmica do intervalo: contexto em duas etapas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#EEF2F5;--card:#fff;--ink:#13213A;--mut:#566178;--line:#C9D3DF;--acc:#0E7C86;--hi:#FFD23F;--bad:#B4411F;--ok:#1F7A4D;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63;--ok:#6FD39B}}
+:root[data-theme="dark"]{--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63;--ok:#6FD39B}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 'Atkinson Hyperlegible',system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px 16px 48px}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.15;margin:.2em 0 .5em}
+h1{font-size:clamp(1.6rem,5.5vw,2.3rem)}h3{font-size:1.1rem}
+button,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.5em 1em;min-height:44px}
+button:hover{border-color:var(--acc)}button.go{background:var(--hi);border-color:var(--hi);color:#13213A;font-weight:700}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1.5px solid var(--line);padding-bottom:10px}
+.top .st{color:var(--mut);flex:1}
+.tm{font:700 1.4rem 'Bricolage Grotesque',system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.q{font:700 clamp(1.3rem,4.5vw,1.8rem)/1.2 'Bricolage Grotesque',system-ui,sans-serif}
+textarea,select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.5em;margin:.2em 0 .6em}
+textarea{min-height:90px}
+.mut{color:var(--mut)}mark{background:var(--hi);color:#13213A;padding:0 .25em;border-radius:3px}
+label.ck{display:flex;gap:8px;margin:6px 0}label.ck input{width:1.1em;height:1.1em;margin-top:.35em}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.hide{display:none}
+details{margin:12px 0}summary{cursor:pointer;color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><span class="st" id="st">Etapa 1 de 2</span><span class="tm" id="bt">05:00</span><button id="bg">Iniciar intervalo</button></div>
+
+<section id="s1">
+ <p class="mut">Pergunta para debate</p>
+ <p class="q">Se o seu celular pudesse ler apenas UMA informação sobre a sua situação ao longo do dia, qual você permitiria? E qual jamais?</p>
+ <div class="card">
+  <label for="ya">Eu permitiria</label>
+  <select id="ya"></select>
+  <label for="yb">Eu jamais permitiria</label>
+  <select id="yb"></select>
+  <label for="yt">Por quê? (só você vê)</label>
+  <textarea id="yt" placeholder="Escreva em silêncio. Falar depois é opcional."></textarea>
+ </div>
+ <details><summary>Nota para o apresentador</summary><p>Peça que todos escrevam, convide voluntários, um por vez, e só então libere a etapa 2. A pergunta liga o contexto à privacidade (debates 3 e 4).</p></details>
+ <button class="go" id="n1">A turma respondeu: avançar</button>
+</section>
+
+<section id="s2" class="hide">
+ <p class="mut">Dinâmica rápida · 3 minutos</p>
+ <h1>Roleta de contexto</h1>
+ <p>Sorteie um app e uma fonte de contexto. Escreva <mark>um</mark> critério de aceitação testável para ele.</p>
+ <p><button class="go" id="sp">Sortear</button></p>
+ <div id="rl" class="hide">
+  <div class="card"><p class="mut" style="margin:0">Seu app</p><p class="q" id="ap"></p><p class="mut" id="cx"></p></div>
+  <p><button id="t90" class="tm" data-s="90">01:30</button> <span class="mut">para escrever</span></p>
+  <textarea id="cr" placeholder="Quando..., o app... em até..."></textarea>
+  <div class="card"><b>Autoavaliação</b>
+   <label class="ck"><input type="checkbox"><span>Diz a situação de contexto (quando, onde, quem)</span></label>
+   <label class="ck"><input type="checkbox"><span>Traz um valor ou limiar verificável</span></label>
+   <label class="ck"><input type="checkbox"><span>Descreve algo observável, não uma tecnologia</span></label>
+   <label class="ck"><input type="checkbox"><span>Duas pessoas concordariam se passou ou falhou</span></label>
+   <p class="mut" id="sc"></p></div>
+  <p><button id="ex">Ver exemplo</button></p><p id="exm" class="hide"></p>
+  <div class="card"><b>Termômetro de privacidade</b><p style="margin:.3em 0">Quanto você aceitaria que este dado fosse coletado?</p><input type="range" id="pv" min="1" max="5" value="3" aria-label="Aceitação da coleta"><p class="mut" id="pl" style="margin:0">3 de 5</p></div>
+  <button id="sp2">Sortear outro</button>
+ </div>
+ <p class="mut" style="margin-top:1.5em">Quando o cronômetro do intervalo zerar, voltamos para o seminário.</p>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const O=['Localização','Agenda e compromissos','Batimentos cardíacos','Ruído do ambiente','Quem está por perto','Histórico de uso do aparelho'];
+$('#ya').innerHTML=O.map(o=>`<option>${o}</option>`).join('');
+$('#yb').innerHTML=O.slice().reverse().map(o=>`<option>${o}</option>`).join('');
+const R=[
+['Aplicativo de transporte','lotação do veículo','Quando o ônibus passa de 90% da lotação, o app sugere, em até 5 segundos, o próximo horário com menos de 60%.'],
+['Biblioteca silenciosa','nível de ruído','Quando o ruído passa de 60 dB por 10 segundos, o app envia um aviso discreto ao celular de quem está na sala.'],
+['Relógio de saúde','batimentos cardíacos','Com frequência acima de 120 bpm em repouso por 5 minutos, o relógio pergunta se está tudo bem e, sem resposta em 1 minuto, avisa o contato de emergência.'],
+['Sala de aula inteligente','número de pessoas','Quando há mais de 30 pessoas na sala por 10 minutos, a ventilação passa ao nível alto em até 1 minuto.'],
+['Carro com alerta de sono','olhos fechados','Quando os olhos ficam fechados por mais de 2 segundos, o carro emite um alerta sonoro em até 1 segundo.'],
+['Casa conectada','presença','Quando ninguém é detectado por 10 minutos, as luzes da sala se apagam.'],
+['Leitor de livros digitais','luz ambiente e hora','Depois das 22h, com menos de 20 lux, a tela muda para tom quente em até 3 segundos.'],
+['Semáforo de pedestres','quem aciona o botão','Quando alguém sinaliza dificuldade de locomoção, o tempo de travessia aumenta em 10 segundos.']];
+let cur=null;
+function draw(){cur=R[Math.floor(Math.random()*R.length)];$('#ap').textContent=cur[0];$('#cx').textContent='Contexto: '+cur[1];$('#cr').value='';document.querySelectorAll('.ck input').forEach(c=>c.checked=false);$('#sc').textContent='';$('#exm').classList.add('hide');$('#rl').classList.remove('hide');$('#pv').value=3;$('#pl').textContent='3 de 5';const t=$('#t90');clearInterval(t._iv);t._iv=0;t._s=undefined;t.textContent='01:30'}
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function tick(t,btn){if(t._iv){clearInterval(t._iv);t._iv=0;if(btn)btn.textContent='Retomar intervalo';return}if(btn)btn.textContent='Pausar';let s=t._s??+t.dataset.s;t._iv=setInterval(()=>{s--;t._s=s;t.textContent=fmt(Math.max(0,s));if(s<=0){clearInterval(t._iv);t._iv=0;if(btn)btn.textContent='Intervalo encerrado'}},1000)}
+$('#bt').dataset.s=300;$('#bg').onclick=()=>tick($('#bt'),$('#bg'));$('#t90').onclick=()=>tick($('#t90'));
+$('#n1').onclick=()=>{$('#s1').classList.add('hide');$('#s2').classList.remove('hide');$('#st').textContent='Etapa 2 de 2';scrollTo(0,0)};
+$('#sp').onclick=draw;$('#sp2').onclick=draw;
+$('#ex').onclick=()=>{const p=$('#exm');p.textContent='Exemplo: '+cur[2];p.classList.remove('hide')};
+document.addEventListener('change',e=>{if(e.target.matches('.ck input'))$('#sc').textContent=document.querySelectorAll('.ck input:checked').length+' de 4 itens atendidos'});
+$('#pv').oninput=e=>$('#pl').textContent=e.target.value+' de 5';
+</script>
+</body>
+</html>

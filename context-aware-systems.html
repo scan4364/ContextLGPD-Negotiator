@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O que é contexto? — Um framework para sistemas conscientes de contexto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2430;
+    --paper:#F7F5EF;
+    --paper-2:#EFEBE0;
+    --teal:#2F6F62;
+    --teal-light:#E4EEEA;
+    --amber:#C97A2B;
+    --amber-light:#F6E9D8;
+    --gray:#6B7280;
+    --line:#D8D3C4;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:0 24px;}
+  h1,h2,h3{font-family:'Source Serif 4',serif; font-weight:600; margin:0 0 0.5em; line-height:1.25;}
+  p{margin:0 0 1.1em; color:#2C3542;}
+  .lede{font-size:19px; color:var(--gray); max-width:600px;}
+
+  header.hero{
+    padding:80px 0 56px;
+    border-bottom:1px solid var(--line);
+  }
+  .kicker{
+    font-family:'Source Serif 4',serif;
+    font-style:italic;
+    color:var(--teal);
+    font-size:17px;
+    margin-bottom:18px;
+  }
+  h1{font-size:38px; letter-spacing:-0.01em;}
+
+  section{padding:56px 0; border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+
+  .marginnote{
+    display:flex; gap:18px; align-items:flex-start;
+    margin:32px 0;
+  }
+  .marginnote .rule{width:3px; background:var(--teal); border-radius:2px; align-self:stretch; flex:0 0 3px;}
+  .marginnote p{margin:0; font-size:15px; color:#3B4453;}
+
+  .callout{
+    background:var(--amber-light);
+    border-left:3px solid var(--amber);
+    padding:16px 20px;
+    border-radius:0;
+    margin:28px 0;
+  }
+  .callout p{margin:0; font-size:15px; color:#5C3B14;}
+  .callout p + p{margin-top:8px;}
+
+  .loop{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
+    margin:32px 0;
+  }
+  .loop .step{
+    background:var(--teal-light);
+    padding:18px 16px;
+    border-radius:2px;
+  }
+  .loop .step .n{
+    font-family:'Source Serif 4',serif;
+    font-size:14px;
+    color:var(--teal);
+    margin-bottom:6px;
+  }
+  .loop .step h3{font-size:16px; margin-bottom:6px; color:var(--ink);}
+  .loop .step p{font-size:13.5px; margin:0; color:#3B4453;}
+
+  @media (max-width:600px){
+    .loop{grid-template-columns:1fr;}
+    header.hero{padding:56px 0 40px;}
+    h1{font-size:30px;}
+  }
+
+  .widget-frame{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:24px 20px;
+    margin:32px 0;
+  }
+
+  .tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;}
+  .tag{
+    font-size:12px; padding:4px 10px; border-radius:2px;
+    background:var(--teal-light); color:#1F4B41;
+  }
+
+  button{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 16px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    border-radius:2px;
+    cursor:pointer;
+  }
+  button:hover{border-color:var(--teal); color:var(--teal);}
+  button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  button.primary:hover{background:#2C3542; color:var(--paper);}
+  button.active-scenario{border-color:var(--teal); color:var(--teal);}
+
+  label.signal{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 14px; border:1px solid var(--line); border-radius:2px;
+    font-size:14px; cursor:pointer; margin-bottom:8px;
+  }
+  label.signal:hover{border-color:var(--teal);}
+  label.signal input{width:16px; height:16px; accent-color:var(--teal);}
+
+  .steps-nav{display:flex; gap:0; margin-bottom:20px; border-bottom:1px solid var(--line);}
+  .steps-nav div{flex:1; text-align:center; padding:8px 4px; font-size:13px; color:var(--gray); border-bottom:2px solid transparent;}
+  .steps-nav div.active{color:var(--teal); border-bottom-color:var(--teal);}
+
+  .inference-box{
+    background:var(--teal-light);
+    padding:16px 18px;
+    border-radius:2px;
+    margin:16px 0 20px;
+  }
+  .inference-box .label{font-size:13px; color:var(--teal); margin-bottom:6px;}
+  .inference-box .text{font-size:15px; font-weight:500; color:#1F4B41; margin:0;}
+
+  .action-box{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    padding:16px 18px;
+    border-radius:2px;
+    margin:16px 0;
+  }
+  .action-box .label{font-size:13px; color:var(--gray); margin-bottom:6px;}
+  .action-box .text{font-size:15px; font-weight:500; margin:0;}
+
+  .err{font-size:13px; color:#A02D2D; margin:4px 0 12px;}
+
+  .ref{
+    font-size:13.5px; color:var(--gray);
+    border-top:1px solid var(--line);
+    padding-top:20px; margin-top:8px;
+  }
+
+  footer{padding:40px 0 60px; font-size:13px; color:var(--gray);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div style="padding-top: 24px;">
+    <a href="index.html" class="btn-back" style="display:inline-flex; align-items:center; gap:6px; color:var(--teal); text-decoration:none; font-weight:600; font-size:15px; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Voltar
+    </a>
+  </div>
+  <header class="hero" style="padding-top: 32px;">
+    <p class="kicker">Uma dinâmica sobre engenharia de sistemas conscientes de contexto</p>
+    <h1>O que uma máquina precisa saber sobre você antes de te ajudar?</h1>
+    <p class="lede">Este site explica, de forma prática, o framework de três funções — capturar, analisar e adaptar — usado para construir sistemas que reagem ao contexto do usuário. No final, você testa o ciclo com suas próprias mãos.</p>
+  </header>
+
+  <section id="contexto">
+    <h2>Por que "contexto" é difícil de definir</h2>
+    <p>Pesquisadores de diferentes áreas — psicologia organizacional, computação ubíqua, ciência cognitiva — descrevem contexto de formas distintas, mas convergem em três ideias: contexto muda o significado de outras informações, ele funciona como uma restrição ou uma oportunidade, e ele molda a interação entre pessoas, sistemas e o ambiente.</p>
+    <div class="marginnote">
+      <div class="rule"></div>
+      <p>Em vez de tentar modelar toda informação possível sobre uma situação, o caminho mais viável é priorizar as variáveis que realmente podem ser observadas e que têm impacto real na tomada de decisão.</p>
+    </div>
+    <p>Um sinal prático de que existe uma variável de contexto relevante: quando um especialista, ao ser questionado sobre seu próprio trabalho, responde "depende" antes de conseguir dar uma resposta direta. Esse "depende" esconde uma variável de contexto que ainda não foi modelada.</p>
+  </section>
+
+  <section id="ciclo">
+    <h2>O ciclo de três funções</h2>
+    <p>Sistemas conscientes de contexto bem-sucedidos, segundo esse framework, sempre repetem o mesmo ciclo, independente do domínio de aplicação:</p>
+
+    <div class="loop">
+      <div class="step">
+        <div class="n">01</div>
+        <h3>Monitor</h3>
+        <p>Captura sinais explícitos do ambiente e infere estados implícitos do usuário — o que ele está fazendo, mesmo sem dizer diretamente.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3>Analyze</h3>
+        <p>Usa modelos estatísticos e de aprendizado de máquina para transformar sinais brutos em uma leitura de intenção, meta ou estado.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3>Augment</h3>
+        <p>Aplica heurísticas ou otimização para decidir como adaptar o sistema: o que mostrar, quando, e em qual formato.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>Esse ciclo é implementado tecnicamente como um grafo temporal de entidades e relações, chamado de framework de representação de contexto. Cada aplicação define seu próprio conjunto de tipos de entidade — o "metamodelo" — mas o motor por trás do ciclo é reutilizável entre domínios diferentes.</p>
+    </div>
+  </section>
+
+  <section id="simulador">
+    <h2>Agora é sua vez de ser o sistema</h2>
+    <p>Escolha um cenário e marque os sinais que o sistema estaria captando neste momento. Depois, veja como ele interpreta esses sinais e qual adaptação sugere — passando pelas três etapas descritas acima.</p>
+
+    <div class="widget-frame">
+      <div style="display:flex; gap:8px; margin-bottom:20px;">
+        <button id="btn-office" style="flex:1;">Analista de pesquisa</button>
+        <button id="btn-driver" style="flex:1;">Motorista de app</button>
+      </div>
+
+      <div class="steps-nav">
+        <div id="step-1">1. Monitor</div>
+        <div id="step-2">2. Analyze</div>
+        <div id="step-3">3. Augment</div>
+      </div>
+
+      <div id="panel-monitor">
+        <p style="font-size:14px; color:var(--gray); margin:0 0 12px;">Sinais captados agora:</p>
+        <div id="signals"></div>
+        <div id="err-slot"></div>
+        <button class="primary" id="btn-analyze" style="width:100%; margin-top:8px;">Analisar contexto</button>
+      </div>
+
+      <div id="panel-analyze" style="display:none;">
+        <p style="font-size:13px; color:var(--gray); margin:0 0 8px;">Sinais capturados</p>
+        <div class="tag-row" id="chips"></div>
+        <div class="inference-box">
+          <p class="label">Inferência do sistema</p>
+          <p class="text" id="inference"></p>
+        </div>
+        <button class="primary" id="btn-augment" style="width:100%;">Ver adaptação sugerida</button>
+      </div>
+
+      <div id="panel-augment" style="display:none;">
+        <div class="action-box">
+          <p class="label">Ação de augmentação</p>
+          <p class="text" id="action"></p>
+        </div>
+        <button id="btn-reset" style="width:100%;">Testar outro conjunto de sinais</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="justificativa">
+    <h2>Por que essa dinâmica ensina o artigo</h2>
+    <p>A simulação acima não é uma metáfora livre — ela reproduz, passo a passo, a estrutura que o artigo <em>A General Context-Aware Framework for Improved Human-System Interactions</em> (Pfautz, Ganberg, Fouse e Schurr, AI Magazine, 2015) propõe como modelo geral para sistemas de colaboração humano-máquina.</p>
+
+    <div class="marginnote">
+      <div class="rule"></div>
+      <p>Os autores descrevem três funções centrais de uma aplicação consciente de contexto: capturar o contexto explícito do ambiente e inferir o contexto implícito, como o estado do usuário; analisar e raciocinar sobre metas e intenção dentro da situação; e, por fim, adaptar o ambiente com base nessa compreensão.</p>
+    </div>
+
+    <p>Isso é exatamente o que você fez ao escolher sinais (Monitor), ver a leitura de intenção do sistema (Analyze) e receber uma ação adaptada (Augment). A diferença entre o cenário do analista e o do motorista mostra, na prática, o argumento central do artigo: o mesmo ciclo de três funções pode ser reaplicado em domínios completamente diferentes — os autores citam desde times de veículos autônomos até estações de trabalho analíticas — porque o que muda entre aplicações é apenas o metamodelo de entidades, não a arquitetura do ciclo.</p>
+
+    <p>O momento em que a simulação não consegue gerar uma inferência confiável com poucos sinais também tem base no artigo: os autores apontam que sistemas adaptativos falham quando não conseguem capturar a intenção real do usuário, e que dados insuficientes ou não observáveis limitam a qualidade de qualquer inferência de contexto.</p>
+
+    <div class="ref">
+      Referência: Pfautz, S. L.; Ganberg, G.; Fouse, A.; Schurr, N. (2015). A General Context-Aware Framework for Improved Human-System Interactions. <em>AI Magazine</em>, 36(2), 42–49.
+    </div>
+  </section>
+
+  <footer>
+    Material de apoio para dinâmica em sala — construa em cima do simulador, altere os cenários ou peça aos participantes que proponham novos sinais e regras de inferência.
+  </footer>
+</div>
+
+<script>
+const scenarios = {
+  office: {
+    signals: [
+      {id:"dwell", text:"Tempo de permanência alto em poucas páginas"},
+      {id:"query", text:"Consultas de busca cada vez mais específicas"},
+      {id:"bookmark", text:"Vários itens salvos na mesma sessão"},
+      {id:"skim", text:"Rolagem rápida, pouco tempo por página"},
+      {id:"broad", text:"Consultas amplas e variadas"}
+    ],
+    rules: [
+      {need:["dwell","bookmark"], inference:"Usuário está em análise profunda de um tópico específico, não em exploração geral.", action:"Priorizar recomendações relacionadas ao conteúdo já salvo e ocultar sugestões genéricas."},
+      {need:["query","broad"], inference:"Usuário ainda está delimitando o problema, sem foco definido.", action:"Diversificar os resultados de busca para ajudar a mapear o espaço do tema."},
+      {need:["skim"], inference:"Usuário está triando conteúdo rapidamente, não lendo em profundidade.", action:"Mostrar resumos mais curtos e destacar apenas os pontos-chave de cada resultado."}
+    ],
+    fallback:{inference:"Sinais insuficientes para inferir intenção com confiança.", action:"Manter comportamento padrão e continuar monitorando novos sinais."}
+  },
+  driver: {
+    signals: [
+      {id:"brake", text:"Frenagens frequentes e próximas"},
+      {id:"night", text:"Horário noturno"},
+      {id:"rain", text:"Sensor indica chuva"},
+      {id:"newroute", text:"Rota fora do padrão habitual do motorista"},
+      {id:"fatigue", text:"Muitas horas seguidas de turno"}
+    ],
+    rules: [
+      {need:["rain","brake"], inference:"Condição de baixa aderência com reação defensiva do motorista.", action:"Reduzir limite de velocidade sugerido e aumentar distância de frenagem recomendada."},
+      {need:["fatigue","night"], inference:"Risco elevado de fadiga em horário de baixa vigilância.", action:"Sugerir parada para descanso e simplificar as notificações na tela."},
+      {need:["newroute"], inference:"Motorista em território pouco familiar.", action:"Aumentar antecedência dos avisos de navegação e detalhar pontos de referência."}
+    ],
+    fallback:{inference:"Sinais insuficientes para inferir intenção com confiança.", action:"Manter comportamento padrão e continuar monitorando novos sinais."}
+  }
+};
+
+let current = "office";
+let selected = new Set();
+
+function renderSignals(){
+  const s = scenarios[current];
+  const box = document.getElementById("signals");
+  box.innerHTML = "";
+  s.signals.forEach(sig => {
+    const row = document.createElement("label");
+    row.className = "signal";
+    row.innerHTML = '<input type="checkbox" data-id="'+sig.id+'"/><span>'+sig.text+'</span>';
+    box.appendChild(row);
+  });
+  box.querySelectorAll("input").forEach(cb=>{
+    cb.addEventListener("change", e=>{
+      if(e.target.checked) selected.add(e.target.dataset.id);
+      else selected.delete(e.target.dataset.id);
+    });
+  });
+}
+
+function setScenario(key){
+  current = key;
+  selected = new Set();
+  document.getElementById("btn-office").classList.toggle("active-scenario", key==="office");
+  document.getElementById("btn-driver").classList.toggle("active-scenario", key==="driver");
+  renderSignals();
+  showPanel("monitor");
+}
+
+function showPanel(name){
+  document.getElementById("panel-monitor").style.display = name==="monitor" ? "block" : "none";
+  document.getElementById("panel-analyze").style.display = name==="analyze" ? "block" : "none";
+  document.getElementById("panel-augment").style.display = name==="augment" ? "block" : "none";
+  ["step-1","step-2","step-3"].forEach(id=>document.getElementById(id).classList.remove("active"));
+  const map = {monitor:"step-1", analyze:"step-2", augment:"step-3"};
+  document.getElementById(map[name]).classList.add("active");
+}
+
+function findMatch(s){
+  for(const rule of s.rules){
+    if(rule.need.every(n=>selected.has(n))) return rule;
+  }
+  return s.fallback;
+}
+
+document.getElementById("btn-office").addEventListener("click", ()=>setScenario("office"));
+document.getElementById("btn-driver").addEventListener("click", ()=>setScenario("driver"));
+
+document.getElementById("btn-analyze").addEventListener("click", ()=>{
+  const s = scenarios[current];
+  const errSlot = document.getElementById("err-slot");
+  errSlot.innerHTML = "";
+  if(selected.size===0){
+    const err = document.createElement("p");
+    err.className = "err";
+    err.textContent = "Selecione ao menos um sinal antes de analisar.";
+    errSlot.appendChild(err);
+    return;
+  }
+  const chipsBox = document.getElementById("chips");
+  chipsBox.innerHTML = "";
+  s.signals.filter(sig=>selected.has(sig.id)).forEach(sig=>{
+    const chip = document.createElement("span");
+    chip.className = "tag";
+    chip.textContent = sig.text;
+    chipsBox.appendChild(chip);
+  });
+  const match = findMatch(s);
+  document.getElementById("inference").textContent = match.inference;
+  showPanel("analyze");
+});
+
+document.getElementById("btn-augment").addEventListener("click", ()=>{
+  const s = scenarios[current];
+  const match = findMatch(s);
+  document.getElementById("action").textContent = match.action;
+  showPanel("augment");
+});
+
+document.getElementById("btn-reset").addEventListener("click", ()=>setScenario(current));
+
+setScenario("office");
+</script>
+
+</body>
+</html>

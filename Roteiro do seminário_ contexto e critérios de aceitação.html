@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roteiro do seminário: contexto e critérios de aceitação</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#EEF2F5;--card:#fff;--ink:#13213A;--mut:#566178;--line:#C9D3DF;--acc:#0E7C86;--hi:#FFD23F;--bad:#B4411F;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63}}
+:root[data-theme="dark"]{--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 56px);scroll-behavior:smooth}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 'Atkinson Hyperlegible',system-ui,sans-serif}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.7rem)}h2{font-size:1.4rem}h3{font-size:1rem;margin:1em 0 .3em}
+a{color:var(--acc);font-weight:700}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);border-bottom:1.5px solid var(--line);padding:8px 14px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:.1em .8em;background:var(--card);font-size:.85rem}
+nav a:hover{background:var(--hi);border-color:var(--hi);color:#13213A}
+main{max-width:800px;margin:0 auto;padding:0 16px 48px}
+header{padding:24px 0 8px}
+.mut{color:var(--mut)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 16px;margin:14px 0}
+mark{background:var(--hi);color:#13213A;padding:0 .25em;border-radius:3px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}td,th{padding:.4em .5em;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+details{border-top:3px solid var(--ink);margin-top:26px;padding-top:6px}
+summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}
+summary h2:after{content:" ▾";color:var(--mut);font-size:.9rem}
+.meta{margin:.2em 0 0;color:var(--mut)}
+ul{padding-left:1.2em;margin:.3em 0}li{margin:.35em 0}
+.tip{border-left:6px solid var(--hi);padding:.2em .8em;margin:.8em 0;background:var(--card);border-radius:0 10px 10px 0}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media print{nav{display:none}details{break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav aria-label="Blocos"><a href="#b1">0–8</a><a href="#b2">8–23</a><a href="#b3">23–43</a><a href="#b4">43–68</a><a href="#b5">68–73</a><a href="#b6">73–93</a><a href="#b7">93–108</a><a href="#b8">108–120</a></nav>
+<main>
+<header>
+ <p class="mut" style="margin:0">Seminários em Contexto Computacional · pós-graduação · 120 min</p>
+ <h1>Roteiro dos apresentadores</h1>
+ <p>Artigo: Rawson e Reddivari, <i>A ChatGPT-Powered Tool for Automating Context-Aware Acceptance Criteria Generation for User Stories</i> (IEEE IRI 2025, p. 325–330). Foco: o <mark>contexto como insumo</mark> do pipeline, ligado ao contexto como objeto de software.</p>
+ <p class="mut">Artefatos: <a href="https://claude.ai/artifact/4qMXHZ3e1CBhu3jYtFzfMP" target="_blank" rel="noopener">slides (23)</a> · <a href="https://claude.ai/artifact/CGiPMTYxg91tZ8eeUraK8Q" target="_blank" rel="noopener">dinâmica individual</a></p>
+</header>
+
+<div class="card"><h2>Protocolo de fala (vale para todos os blocos)</h2><ul>
+ <li>Uma pessoa por vez, sem interrupções.</li>
+ <li>Escrita silenciosa antes de falar; falar é voluntário e sem chamada nominal.</li>
+ <li>"Passo" é resposta válida. Se ninguém falar, o apresentador oferece uma hipótese e segue.</li>
+ <li>A pergunta fica visível no slide durante toda a rodada.</li>
+ <li>Para quem não é da computação: traduza termos na hora (ex.: "índice de busca" = catálogo para achar documentos).</li></ul></div>
+<div class="card"><h2>Leram, mas não leram</h2>
+ <p>Abra cada exposição com uma <b>ponte</b>: "No artigo, na seção X, os autores dizem...; o que me interessa aqui é...". Diga a página, para quem quiser rever. Sem perguntar quem leu, sem testar leitura.</p></div>
+
+<table aria-label="Visão geral"><tr><th>Min</th><th>Bloco</th><th>Formato</th><th>Slides</th></tr>
+<tr><td>0–8</td><td>Abertura</td><td>Exposição</td><td>1–3</td></tr>
+<tr><td>8–23</td><td>Critérios de aceitação</td><td>Exposição</td><td>4–5</td></tr>
+<tr><td>23–43</td><td>Dinâmica individual</td><td>Página + debrief</td><td>6–7</td></tr>
+<tr><td>43–68</td><td>O artigo: contexto e testes</td><td>Exposição</td><td>8–14</td></tr>
+<tr><td>68–73</td><td>Pausa</td><td>—</td><td>—</td></tr>
+<tr><td>73–93</td><td>Debate (4 perguntas)</td><td>Escrita + fala voluntária</td><td>15–18</td></tr>
+<tr><td>93–108</td><td>Limites e agenda</td><td>Exposição + debate 5</td><td>19–21</td></tr>
+<tr><td>108–120</td><td>Fechamento</td><td>Síntese</td><td>22–23</td></tr></table>
+
+<details open id="b1"><summary><h2>1. Abertura · 0–8 min</h2><p class="meta">Slides 1–3 · exposição</p></summary>
+<ul>
+<li>Apresente o seminário e o protocolo de fala (slide 2). Avise que a dinâmica 1 é individual e privada.</li>
+<li>Enquadre o artigo: o contexto aparece de duas formas. Aqui ele é <b>insumo</b> (código, requisitos e a situação da história alimentam um LLM). Na disciplina, ele é <b>objeto</b> (software que muda conforme a situação). O debate vai cruzar as duas.</li>
+<li>Diga o que será e o que não será coberto: foco em critérios, pipeline, testes e limites; a revisão sobre modelos de linguagem (seção II.A) fica de fora.</li></ul></details>
+
+<details open id="b2"><summary><h2>2. Critérios de aceitação · 8–23 min</h2><p class="meta">Slides 4–5 · exposição · p. 325</p></summary>
+<ul>
+<li><b>Definição (slide 4).</b> Leia a citação curta, atribuída pelos autores à Atlassian, e explique os três traços: clara, concisa e testável. Acrescente que o foco é o resultado para o cliente, não a implementação (paráfrase).</li>
+<li><b>Custo da ambiguidade (slide 5).</b> Critérios ambíguos prolongam a comunicação entre partes interessadas e, no pior caso, levam a redesenho e retrabalho. Os autores apoiam isso em trabalhos anteriores de requisitos.</li>
+<li><b>Ciclo de vida.</b> Segundo os autores: arquitetos derivam segurança, desempenho e confiabilidade dos critérios; desenvolvedores dividem o trabalho; testes verificam cada requisito; a manutenção usa os critérios como referência.</li>
+<li><b>Ponte.</b> Se critérios são tão decisivos e tão caros, vale tentar automatizá-los? É a aposta do artigo.</li></ul>
+<div class="tip">Pergunta opcional, em escrita: "Em que momento de um trabalho seu um requisito ambíguo atrapalhou?" 1 min escrevendo, 1 voluntário.</div></details>
+
+<details open id="b3"><summary><h2>3. Dinâmica individual · 23–43 min</h2><p class="meta">Slides 6–7 · 2 min de instruções, 12 de página, 6 de debrief</p></summary>
+<ul>
+<li>Cole o link no chat. A página tem 10 trechos de software sensível ao contexto (brilho adaptativo, "não perturbe" ao dirigir, termostato, guia de museu, tema do sistema). Cada trecho é um critério testável ou não.</li>
+<li>Feedback imediato com o motivo; no fim, resumo dos erros, exercício de reescrita, autoavaliação antes e depois e três perguntas para anotar antes do debate. Nada é enviado nem salvo.</li>
+<li><b>Debrief (slide 7):</b> as quatro formas de não ser critério (vago, solução técnica, meta, subjetivo). Convide voluntários, um por vez, a contar o item que surpreendeu, sem revelar a nota.</li>
+<li><b>Gancho:</b> o item do tema escuro é a mesma dúvida que a IA levantou no teste 2 (p. 329). Todos os exemplos dependem de uma situação, e é isso que o bloco seguinte discute.</li></ul>
+<div class="tip">Se ninguém falar no debrief, conte o seu: o brilho "inteligente" parece um critério e não é.</div></details>
+
+<details open id="b4"><summary><h2>4. O artigo: contexto, pipeline e testes · 43–68 min</h2><p class="meta">Slides 8–14 · exposição · p. 326–329</p></summary>
+<ul>
+<li><b>Contexto em computação (4 min, slide 8).</b> Referência fora do artigo: Dey (2001) trata contexto como a informação que caracteriza a situação de uma entidade relevante. Ciclo genérico: adquirir, representar, raciocinar, adaptar.</li>
+<li><b>Mapa do contexto (6 min, slides 9–10).</b> Aquisição: varredura do repositório com lista de exclusão e entradas do usuário (papel, tipo de software, funcionalidade, caso de uso; Fig. 1–3). Representação: resumos por arquivo (frase, parágrafo, métodos) e índice Whoosh. Raciocínio: termos de busca gerados, requisitos recuperados e arquivos escolhidos pelos resumos. Adaptação: critérios, perguntas e primeiros passos. O framework tem dois estágios, e a frequência do pré-processamento é configurável (p. 326).</li>
+<li><b>Módulos e prompts (5 min, slides 11–12).</b> fileSummarizer filtra, fileStructure resume com tags e corta em 4.000 caracteres (Fig. 4), Indexer gera termos e busca, e um prompt pede os caminhos dos arquivos relevantes sem comentários extras (Fig. 5). Prompt: papel, domínio, autoverificação, restrições (p. 326).</li>
+<li><b>Testes (7 min, slides 13–14).</b> Teste 1 (p. 328): app de tarefas com 3 arquivos; task.py e todo.py relevantes, main.py descartado; o requisito "Task Prioritization" foi recuperado; critérios cobriram uso padrão e bordas. Teste 2 (p. 328–329): portfólio em React de Brittany Chiang, com a história do tema claro/escuro; achou arquivos de tema e navegação, mas gerou termos vagos como "accessibility compliance"; perguntou se o tema padrão deve seguir o sistema.</li>
+<li><b>Fecho (3 min).</b> Pergunta-ponte: a ferramenta é sensível ao contexto no sentido clássico? <mark>Em parte.</mark> Ela adapta a saída à situação do projeto, mas o contexto é um retrato estático, reprocessado em cadência configurável; não há leitura contínua do ambiente.</li></ul>
+<div class="tip">Recuperação em escrita (opcional): "Qual etapa do pipeline mais afeta a qualidade do resultado?" 1 min; um voluntário comenta.</div></details>
+
+<details open id="b5"><summary><h2>5. Pausa · 68–73 min</h2></summary><p>Deixe no slide a pergunta do debate 1 para a turma pensar durante o intervalo.</p></details>
+
+<details open id="b6"><summary><h2>6. Debate · 73–93 min</h2><p class="meta">Slides 15–18 · 4 perguntas de 5 min</p></summary>
+<p><b>Ritmo de cada pergunta:</b> 0–2 min escrita silenciosa (cronômetro no slide); 2–4 min falas voluntárias, uma por vez, cerca de 1 min cada; 4–5 min síntese do apresentador ligada ao artigo e à disciplina.</p>
+<h3>Debate 1 · O que fica de fora do contexto?</h3><ul><li>Ganchos: decisões antigas, conversas informais, restrições legais, conhecimento tácito.</li><li>Ligação: resumos truncados e arquivos filtrados (p. 326–328). Todo resumo é uma representação com perda.</li></ul>
+<h3>Debate 2 · Critérios para situações que variam</h3><ul><li>Ganchos: critérios parametrizados por situação, faixas em vez de valores únicos, simulação de sensores nos testes, dificuldade de dizer qual era a situação correta.</li><li>Ligação: dinâmica 1 e o tema que segue o sistema.</li></ul>
+<h3>Debate 3 · Quem valida o contexto, e que dados não saem</h3><ul><li>Ganchos: revisão humana dos termos e arquivos escolhidos, transparência sobre o contexto usado, minimização de dados.</li><li>Ligação: a exclusão de arquivos sensíveis e o uso de uma API externa (p. 326). Privacidade é questão de contexto.</li></ul>
+<h3>Debate 4 · Contexto por sensores em um app de saúde</h3><ul><li>Ganchos: consentimento, falsos positivos, critérios negativos (o que nunca deve acontecer), responsabilidade, pessoas vulneráveis.</li><li>Ligação: sensores como gatilho, como nos exemplos da dinâmica.</li></ul>
+<div class="tip">Se o silêncio durar, leia uma hipótese provocativa ("o contexto de um projeto é só o que está escrito nele") e peça concordância ou discordância por escrito.</div></details>
+
+<details open id="b7"><summary><h2>7. Limites e agenda · 93–108 min</h2><p class="meta">Slides 19–21 · 10 min de exposição, 5 de debate</p></summary>
+<ul>
+<li><b>Limites (slide 19).</b> Dois cenários avaliados de forma qualitativa, sem métricas nem comparação com critérios humanos; o teste corporativo foi inviável por orçamento e acesso (p. 328); termos vagos prejudicam a busca (p. 329). O artigo demonstra <b>viabilidade</b>, não <b>eficácia</b>.</li>
+<li><b>Agenda (slide 20).</b> Dos autores (p. 330): operadores AND/OR ou termos mais restritos, testes em repositórios maiores, ciclos de feedback manuais e automáticos. Para a turma: recuperação semântica, contexto além do código (histórico, situação de uso) e avaliação por especialistas.</li>
+<li><b>Debate 5 (slide 21).</b> O que muda no papel de quem faz engenharia de requisitos. Ganchos: curadoria e revisão, definir e auditar o contexto, risco de perder prática.</li></ul></details>
+
+<details open id="b8"><summary><h2>8. Fechamento · 108–120 min</h2><p class="meta">Slides 22–23</p></summary>
+<ul><li>4 min: peça três ideias que ficam, uma pessoa por vez, e escreva no slide.</li><li>4 min: cartão de saída individual (mantenho, mudo, pesquisaria).</li><li>4 min: palavra da professora e perguntas. Mostre as referências.</li></ul></details>
+
+<div class="card"><h2>Se faltar ou sobrar tempo</h2><ul>
+<li>Faltando: encurte o debrief (−3), os módulos (−3) e corte o debate 4.</li>
+<li>Sobrando: dê mais tempo ao debate 2 ou revise os itens que a turma mais errou.</li></ul></div>
+<div class="card"><h2>Trechos para citar literalmente</h2>
+<p>Usei citação literal só na definição do slide 4 e parafraseei o resto. Para trazer o texto exato dos autores, copie do PDF: definição e custo da ambiguidade (p. 325, Introdução), técnicas de prompt (p. 326, II.B), prompt final e diretrizes (p. 327, IV.B), conclusão e trabalho futuro (p. 330).</p></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adivinhe o sinal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14181F;
+    --bg-2:#1C222B;
+    --card:#232A35;
+    --line:#333B48;
+    --text:#EDEEF0;
+    --muted:#9BA3B0;
+    --amber:#E8A33D;
+    --amber-dim:#3A2E1A;
+    --coral:#E2574C;
+    --coral-dim:#3A2220;
+    --teal:#3FB68B;
+    --teal-dim:#1B342C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    min-height:100vh;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:32px 20px 80px;}
+  h1,h2,h3{font-family:'Source Serif 4',serif; font-weight:600; margin:0 0 0.5em; line-height:1.2;}
+
+  .progress{display:flex; gap:6px; margin-bottom:36px;}
+  .progress .dot{flex:1; height:3px; background:var(--line); border-radius:2px;}
+  .progress .dot.done{background:var(--amber);}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadein 0.4s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{color:var(--amber); font-size:14px; font-weight:600; letter-spacing:0.01em; margin-bottom:10px;}
+  .big-question{font-size:26px; margin-bottom:20px;}
+  .lede{color:var(--muted); font-size:16px; margin-bottom:28px;}
+
+  .case-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px 20px;
+    margin-bottom:24px;
+  }
+  .case-card p{margin:0; font-size:17px; color:var(--text);}
+
+  .options{display:flex; flex-direction:column; gap:10px; margin-bottom:8px;}
+  .opt{
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    text-align:left;
+    padding:14px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:border-color 0.15s;
+  }
+  .opt:hover{border-color:var(--amber);}
+  .opt.picked{border-color:var(--amber); background:var(--amber-dim);}
+  .opt.correct{border-color:var(--teal); background:var(--teal-dim);}
+  .opt.wrong{border-color:var(--coral); background:var(--coral-dim); opacity:0.7;}
+  .opt:disabled{cursor:default;}
+
+  .reveal{
+    margin-top:20px;
+    background:var(--teal-dim);
+    border-left:3px solid var(--teal);
+    padding:16px 18px;
+    border-radius:0 8px 8px 0;
+    display:none;
+  }
+  .reveal.show{display:block; animation:fadein 0.4s ease;}
+  .reveal .label{color:var(--teal); font-size:13px; font-weight:600; margin-bottom:6px;}
+  .reveal p{margin:0; font-size:15px; color:var(--text);}
+
+  .btn-row{margin-top:28px;}
+  button.next{
+    width:100%;
+    background:var(--amber);
+    color:#241A05;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    padding:16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    display:none;
+  }
+  button.next.show{display:block; animation:fadein 0.4s ease;}
+  button.next:active{transform:scale(0.99);}
+
+  .final .big-question{font-size:28px; color:var(--amber);}
+  .final .lede{font-size:17px;}
+
+  .bridge-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px 20px;
+    margin-top:12px;
+  }
+  .bridge-card p{margin:0; font-size:16px; color:var(--muted);}
+  .bridge-card p + p{margin-top:10px;}
+
+  .start-btn{
+    width:100%;
+    background:var(--amber);
+    color:#241A05;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    padding:18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:8px;
+  }
+
+  .tally{font-size:13px; color:var(--muted); margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="btn-back" style="display:inline-flex; align-items:center; gap:6px; color:var(--amber); text-decoration:none; font-weight:600; margin-bottom:20px; font-size:15px; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+    Voltar
+  </a>
+
+  <div class="progress" id="progress">
+    <div class="dot" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+  </div>
+
+  <div class="screen active" id="screen-intro">
+    <p class="kicker">Antes de começar</p>
+    <h1 class="big-question">Quantos sinais um sistema precisa captar para saber o que você vai fazer antes de você mesmo decidir?</h1>
+    <p class="lede">Você vai ver três situações reais. Em cada uma, aposte qual sinal você acha que o sistema usou para agir — antes de saber a resposta.</p>
+    <button class="start-btn" id="btn-start">Começar</button>
+  </div>
+
+  <div class="screen" id="screen-1">
+    <p class="kicker">Caso 1 de 3</p>
+    <div class="case-card">
+      <p>É segunda-feira, 23h. Você abre a Netflix esperando ver as comédias que sempre assiste. Mas a tela inicial mudou: os destaques agora são documentários sérios e dramas lentos.</p>
+    </div>
+    <p class="lede" style="margin-bottom:16px; font-size:15px;">O que você acha que o sistema usou para tomar essa decisão?</p>
+    <div class="options" id="opts-1">
+      <button class="opt" data-correct="false">O gênero dos últimos filmes que você assistiu</button>
+      <button class="opt" data-correct="true">O horário, o dia da semana e o padrão histórico de audiência nesse horário</button>
+      <button class="opt" data-correct="false">Uma avaliação que você deixou em algum filme</button>
+    </div>
+    <div class="reveal" id="reveal-1">
+      <p class="label">O que realmente acontece</p>
+      <p>Plataformas de streaming cruzam horário, dia da semana e o comportamento agregado de milhões de contas no mesmo horário. Segunda-feira tarde da noite tende a ter menos energia disponível para comédia rápida — e o sistema aposta nisso antes mesmo de olhar seu histórico individual.</p>
+    </div>
+    <div class="btn-row"><button class="next" id="next-1">Próximo caso</button></div>
+  </div>
+
+  <div class="screen" id="screen-2">
+    <p class="kicker">Caso 2 de 3</p>
+    <div class="case-card">
+      <p>Você está numa reunião marcada no seu calendário. No meio da conversa, seu celular sugere ativar o modo "Não perturbe" — sem você tocar em nada.</p>
+    </div>
+    <p class="lede" style="margin-bottom:16px; font-size:15px;">Qual sinal disparou essa sugestão?</p>
+    <div class="options" id="opts-2">
+      <button class="opt" data-correct="false">O microfone detectou vozes de outras pessoas</button>
+      <button class="opt" data-correct="true">O evento do calendário está marcado como ocupado, no horário atual</button>
+      <button class="opt" data-correct="false">O GPS detectou que você está numa sala de reunião</button>
+    </div>
+    <div class="reveal" id="reveal-2">
+      <p class="label">O que realmente acontece</p>
+      <p>O sistema cruza o horário atual com os eventos do seu calendário marcados como ocupado. Não precisa de câmera, microfone ou GPS — a informação explícita que você já forneceu ao marcar o evento já é suficiente para inferir que você está indisponível.</p>
+    </div>
+    <div class="btn-row"><button class="next" id="next-2">Próximo caso</button></div>
+  </div>
+
+  <div class="screen" id="screen-3">
+    <p class="kicker">Caso 3 de 3</p>
+    <div class="case-card">
+      <p>Você está correndo com um app no celular. Antes mesmo de você desviar de uma poça, o app recalcula sua rota e sugere um caminho coberto.</p>
+    </div>
+    <p class="lede" style="margin-bottom:16px; font-size:15px;">O que disparou o recálculo?</p>
+    <div class="options" id="opts-3">
+      <button class="opt" data-correct="false">Uma foto que você tirou da rua</button>
+      <button class="opt" data-correct="true">Dados de sensor de chuva cruzados com o mapa da região</button>
+      <button class="opt" data-correct="false">Sua velocidade de corrida caindo</button>
+    </div>
+    <div class="reveal" id="reveal-3">
+      <p class="label">O que realmente acontece</p>
+      <p>Sensores meteorológicos externos ao próprio app alimentam a previsão para a região exata onde você está correndo. O sistema não espera você reagir à chuva — ele já reagiu antes, usando um contexto que nem é gerado pelo seu celular.</p>
+    </div>
+    <div class="btn-row"><button class="next" id="next-3">Ver a pergunta final</button></div>
+  </div>
+
+  <div class="screen final" id="screen-final">
+    <p class="kicker">Antes do seminário começar</p>
+    <h2 class="big-question">Se um sistema sabe tudo isso sem perguntar, onde termina "ajudar" e começa "vigiar"?</h2>
+    <div class="bridge-card">
+      <p>O que você acabou de fazer — apostar no sinal a partir do resultado — é o caminho inverso do que um sistema consciente de contexto faz. Ele parte do sinal para chegar no resultado, em um ciclo de três etapas que vamos abrir agora.</p>
+      <p>Guarda essa pergunta. Ela vai voltar no debate.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const order = ["screen-intro","screen-1","screen-2","screen-3","screen-final"];
+let current = 0;
+
+function goTo(i){
+  document.getElementById(order[current]).classList.remove("active");
+  current = i;
+  document.getElementById(order[current]).classList.add("active");
+  document.querySelectorAll(".progress .dot").forEach((d,idx)=>{
+    d.classList.toggle("done", idx < current);
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.getElementById("btn-start").addEventListener("click", ()=>goTo(1));
+
+[1,2,3].forEach(n=>{
+  const opts = document.querySelectorAll("#opts-"+n+" .opt");
+  const reveal = document.getElementById("reveal-"+n);
+  const nextBtn = document.getElementById("next-"+n);
+  opts.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(btn.disabled) return;
+      opts.forEach(o=>{
+        o.disabled = true;
+        if(o.dataset.correct === "true") o.classList.add("correct");
+        else if(o === btn) o.classList.add("wrong");
+      });
+      reveal.classList.add("show");
+      nextBtn.classList.add("show");
+    });
+  });
+  nextBtn.addEventListener("click", ()=>goTo(order.indexOf(nextBtn.closest(".screen").id)+1));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dinâmica individual: tem critério de aceitação aqui?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#EEF2F5;--card:#fff;--ink:#13213A;--mut:#566178;--line:#C9D3DF;--acc:#0E7C86;--hi:#FFD23F;--bad:#B4411F;--ok:#1F7A4D;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63;--ok:#6FD39B}}
+:root[data-theme="dark"]{--bg:#0E1626;--card:#17233A;--ink:#E8EEF7;--mut:#9AA8BD;--line:#2A3A57;--acc:#4FD1C5;--bad:#F08A63;--ok:#6FD39B}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 'Atkinson Hyperlegible',system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.15;margin:.2em 0 .5em}
+h1{font-size:clamp(1.8rem,6vw,2.5rem)}h2{font-size:1.5rem}h3{font-size:1.1rem}
+button,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.55em 1em;min-height:44px}
+button:hover{border-color:var(--acc)}button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button.go{background:var(--hi);border-color:var(--hi);color:#13213A;font-weight:700}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.stmt{font-size:1.2rem;margin:.3em 0}
+.mut{color:var(--mut)}.ok{color:var(--ok);font-weight:700}.ko{color:var(--bad);font-weight:700}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--hi)}
+.chip{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:0 .7em;font-size:.85em;margin-right:6px}
+textarea,select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.5em}
+textarea{min-height:90px}
+label.ck{display:flex;gap:8px;margin:6px 0}label.ck input{width:1.1em;height:1.1em;margin-top:.35em}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const I=[
+{a:'Brilho adaptativo do celular',x:'luz ambiente (sensor)',t:'Quando o sensor mede menos de 10 lux e a tela está ligada, o brilho passa a no máximo 20% em até 2 segundos.',ok:1,k:'Válido',w:'Tem situação de contexto (pouca luz), limiar e prazo. Dá para testar num quarto escuro com um cronômetro.'},
+{a:'Brilho adaptativo do celular',x:'luz ambiente (sensor)',t:'A tela deve se ajustar de forma inteligente ao ambiente.',ok:0,k:'Vago',w:'"Inteligente" e "ajustar" não dizem quando, quanto nem como verificar.',f:'Quando a luz ambiente passa de 10.000 lux (sol direto), o brilho sobe para 100% em até 3 segundos.'},
+{a:'Modo "Não perturbe" ao dirigir',x:'velocidade e movimento',t:'Quando o aparelho se move a mais de 20 km/h por 30 segundos, mensagens são silenciadas e chamadas de favoritos continuam tocando.',ok:1,k:'Válido',w:'Define o gatilho de contexto e dois comportamentos observáveis, incluindo a exceção.'},
+{a:'Modo "Não perturbe" ao dirigir',x:'velocidade e movimento',t:'O sistema usará um modelo de aprendizado de máquina para detectar que a pessoa está dirigindo.',ok:0,k:'Solução técnica',w:'Descreve como construir, não o que a pessoa observa. Um critério fala do comportamento esperado.',f:'Quando a pessoa está num carro a mais de 20 km/h, a tela de mensagens fica bloqueada e uma resposta automática é enviada.'},
+{a:'Termostato residencial',x:'presença na casa',t:'O termostato deve economizar energia.',ok:0,k:'Meta',w:'É um objetivo. Sem situação nem número, não há como dizer se passou ou falhou.',f:'Com a casa vazia por mais de 30 minutos, a temperatura-alvo cai para 18 °C e volta a 22 °C até 10 minutos após alguém chegar.'},
+{a:'Termostato residencial',x:'presença na casa',t:'Quando ninguém está em casa há mais de 30 minutos, a temperatura-alvo passa para 18 °C.',ok:1,k:'Válido',w:'Contexto (presença), limiar de tempo e resultado mensurável.'},
+{a:'Guia de museu por localização',x:'proximidade (beacon)',t:'Quando a pessoa fica a menos de 2 m de uma obra por 5 segundos, o app mostra a ficha da obra no idioma escolhido.',ok:1,k:'Válido',w:'Usa localização e tempo de permanência, e ainda a preferência da pessoa (idioma).'},
+{a:'Guia de museu por localização',x:'proximidade (beacon)',t:'O guia deve ser rápido e agradável de usar.',ok:0,k:'Subjetivo',w:'Duas pessoas discordariam se passou ou não. Falta algo observável.',f:'Quando a pessoa se aproxima de uma obra, a ficha aparece em até 2 segundos.'},
+{a:'Tema claro/escuro de um site',x:'preferência do sistema',t:'Na primeira visita, o site usa o tema claro ou escuro definido pelo sistema do visitante.',ok:1,k:'Válido',w:'É a dúvida que a IA levantou no teste 2 do artigo (p. 329): o tema padrão deve seguir o sistema? Aqui virou critério.'},
+{a:'Tema claro/escuro de um site',x:'preferência do sistema',t:'O tema deve ser bonito e acessível.',ok:0,k:'Subjetivo',w:'"Bonito" não se verifica e "acessível" precisa de um padrão para medir.',f:'Texto e controles têm contraste mínimo de 4,5:1 nos dois temas.'}
+];
+const KS=['Vago','Solução técnica','Meta','Subjetivo'];
+const Q=['O que fica de fora quando o contexto de um projeto é só código e requisitos?','Como escrever critério de aceitação para um software cujo comportamento muda com a situação?','Quem deve validar o contexto que a ferramenta selecionou, e que dados não deveriam sair do projeto?'];
+const app=document.getElementById('app');
+let ord=[],k=0,ans=[],pre=0,post=0;
+const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const scale=n=>`<div class="opts">${[1,2,3,4,5].map(v=>`<button data-act="${n}" data-v="${v}" aria-label="${v}">${v}</button>`).join('')}</div><p class="mut" style="display:flex;justify-content:space-between;margin:0"><span>1 = nada seguro(a)</span><span>5 = muito seguro(a)</span></p>`;
+function intro(){app.innerHTML=`<p class="mut">Seminários em Contexto Computacional</p><h1>Tem critério de aceitação aqui?</h1>
+<p>São 10 trechos de software sensível ao contexto, como brilho adaptativo, termostato e guia de museu. Em cada um, decida se o texto é um critério de aceitação testável.</p>
+<p class="mut">Individual e privado: nada é enviado nem salvo. Leva uns 12 minutos.</p>
+<div class="card"><h3>Antes de começar</h3><p>Quão seguro(a) você está para distinguir um critério testável de um objetivo vago?</p>${scale('pre')}</div>
+<button class="go" id="st" data-act="start" disabled>Começar</button>`}
+function quiz(){const it=ord[k];app.innerHTML=`<p class="mut">Trecho ${k+1} de ${I.length} · contexto: ${it.x}</p><div class="bar"><i style="width:${k/I.length*100}%"></i></div>
+<div class="card"><p class="mut" style="margin:0">${it.a}</p><p class="stmt">“${it.t}”</p></div>
+<p><b>Isto é um critério de aceitação testável?</b></p><div class="opts"><button data-act="ans" data-v="1">Sim, é critério</button><button data-act="ans" data-v="0">Não é</button></div><div id="fb"></div>`}
+function fb(v){const it=ord[k],r=(v==it.ok);ans[k]=r;document.querySelectorAll('[data-act=ans]').forEach(b=>b.disabled=true);
+document.getElementById('fb').innerHTML=`<div class="card"><p class="${r?'ok':'ko'}">${r?'Acertou':'Não desta vez'}: ${it.ok?'é um critério válido':'não é critério ('+it.k.toLowerCase()+')'}.</p><p>${it.w}</p>${it.f?`<p class="mut">Versão testável: ${it.f}</p>`:''}</div><button class="go" data-act="next">${k+1<I.length?'Próximo trecho':'Ver resultado'}</button>`}
+function result(){const s=ans.filter(Boolean).length;const miss={};ord.forEach((it,i)=>{if(!ans[i]){miss[it.ok?'Válido':it.k]=(miss[it.ok?'Válido':it.k]||0)+1}});
+const bad=I.filter(i=>!i.ok);
+app.innerHTML=`<h1>Resultado: ${s} de ${I.length}</h1>
+<div class="card"><h3>Onde você escorregou</h3><p>${Object.keys(miss).length?Object.entries(miss).map(([a,b])=>`<span class="chip">${a==='Válido'?'não reconheceu um critério válido':a} · ${b}</span>`).join(''):'Em nenhum tipo. Ótimo!'}</p><p class="mut">Quatro formas de um texto não ser critério: ${KS.join(', ').toLowerCase()}.</p></div>
+<div class="card"><h3>Reescreva um item</h3><select id="sel">${bad.map((b,i)=>`<option value="${i}">${b.t}</option>`).join('')}</select><textarea id="rw" placeholder="Sua versão testável, com a situação de contexto"></textarea><p><button data-act="ex">Ver exemplo</button></p><p id="exm" class="mut hide"></p>
+<p class="mut">Autoavaliação:</p>${['Diz a situação de contexto (quando, onde, quem)','Traz um valor ou limiar verificável','Descreve algo observável, não uma tecnologia','Duas pessoas concordariam se passou ou falhou'].map(c=>`<label class="ck"><input type="checkbox"><span>${c}</span></label>`).join('')}</div>
+<div class="card"><h3>Depois da dinâmica</h3><p>Agora, quão seguro(a) você está?</p>${scale('post')}<p id="cmp" class="ok"></p></div>
+<div class="card"><h3>Para pensar antes do debate</h3><p class="mut">Anotar já é participar. Só fale se quiser; nada é salvo.</p>${Q.map(q=>`<p><b>${q}</b></p><textarea></textarea>`).join('')}</div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.act,v=+b.dataset.v;
+if(a==='pre'||a==='post'){b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));if(a==='pre'){pre=v;document.getElementById('st').disabled=false}else{post=v;document.getElementById('cmp').textContent=pre?(post>pre?'Sua segurança subiu de '+pre+' para '+post+'.':post==pre?'Sua segurança ficou em '+post+'.':'Sua segurança foi de '+pre+' para '+post+'. Vale discutir por quê.'):''}}
+if(a==='start'){ord=sh(I.slice());k=0;ans=[];quiz()}
+if(a==='ans')fb(v);
+if(a==='next'){k++;k<I.length?quiz():result()}
+if(a==='ex'){const it=I.filter(i=>!i.ok)[+document.getElementById('sel').value];const p=document.getElementById('exm');p.textContent='Exemplo: '+it.f;p.classList.remove('hide')}});
+intro();
+</script>
+</body>
+</html>
