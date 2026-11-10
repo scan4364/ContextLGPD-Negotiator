@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net" modified="2026-11-10T00:25:00.000Z" agent="Mozilla/5.0" version="24.0.0" type="device">
+  <diagram id="acme_architecture_diagram" name="Arquitetura ADL ACME - ContextLGPD">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- FRAME DO SISTEMA -->
+        <mxCell id="sys_box" value="System: ContextLGPDNegotiatorArchitecture (ADL ACME)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#475569;fontStyle=1;fontSize=13;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1080" height="720" as="geometry" />
+        </mxCell>
+
+        <!-- SUB-TIER 1: CLIENTE E INTERFACE -->
+        <mxCell id="tier_client" value="Camada de Cliente &amp; Interface" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#3B82F6;dashed=1;fontColor=#1E3A8A;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="sys_box">
+          <mxGeometry x="30" y="50" width="300" height="630" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: ReqInputInterface -->
+        <mxCell id="cmp_input" value="&lt;b&gt;Component: ReqInputInterface&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• 4W Context (Dey 2001)&lt;br&gt;• BDD Given-When-Then&lt;br&gt;• User Story agile format&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="tier_client">
+          <mxGeometry x="25" y="60" width="250" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="port_input_out" value="out: scenarioDefOut" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#2563EB;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_input">
+          <mxGeometry x="190" y="75" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: LocalStorageVault -->
+        <mxCell id="cmp_vault" value="&lt;b&gt;Component: LocalStorageVault&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• Offline-First Client Vault&lt;br&gt;• Multi-Project Workspace&lt;br&gt;• Disaster Recovery (Undo)&lt;br&gt;• Zero Cloud DB Dependency&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#059669;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="tier_client">
+          <mxGeometry x="25" y="440" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="port_vault_in" value="in: persistenceIn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D1FAE5;strokeColor=#059669;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_vault">
+          <mxGeometry x="10" y="20" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- SUB-TIER 2: BORDA / EDGE (PRIVACYGUARD) -->
+        <mxCell id="tier_edge" value="Camada de Borda (Edge Computing) — Sanitização Local" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FDF4;strokeColor=#10B981;dashed=1;fontColor=#065F46;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="sys_box">
+          <mxGeometry x="360" y="50" width="370" height="630" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: ContextParserEngine -->
+        <mxCell id="cmp_parser" value="&lt;b&gt;Component: ContextParserEngine&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• Extração e vetorização 4W&lt;br&gt;• Calibração de QoC (Buchholz)&lt;br&gt;• Avaliação de Sensores Ativos&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#10B981;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="tier_edge">
+          <mxGeometry x="30" y="60" width="310" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="port_parser_in" value="in: rawScenarioIn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D1FAE5;strokeColor=#10B981;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_parser">
+          <mxGeometry x="5" y="40" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="port_parser_out" value="out: parsedVectorsOut" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D1FAE5;strokeColor=#10B981;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_parser">
+          <mxGeometry x="235" y="40" width="70" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: PrivacyGuardSanitizer -->
+        <mxCell id="cmp_guard" value="&lt;b&gt;Component: PrivacyGuardSanitizer&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• Mitigação dos 3 Paradoxos LGPD&lt;br&gt;• Degradação Métrica de QoC (100m)&lt;br&gt;• Conversão em Tags Semânticas&lt;br&gt;• Zero-Storage em RAM Efêmera&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#EF4444;strokeWidth=2.5;fontColor=#7F1D1D;align=center;" vertex="1" parent="tier_edge">
+          <mxGeometry x="30" y="240" width="310" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="port_guard_in" value="in: contextVectorIn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_guard">
+          <mxGeometry x="120" y="5" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="port_guard_out" value="out: sanitizedPayloadOut" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_guard">
+          <mxGeometry x="235" y="90" width="70" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: RegulatoryDocGenerator -->
+        <mxCell id="cmp_doc" value="&lt;b&gt;Component: RegulatoryDocGenerator&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• Matriz de Accountability (Art. 6º, X)&lt;br&gt;• Exportador de Relatório RIPD (.md)&lt;br&gt;• Rastreabilidade de Bases Legais&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6366F1;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="tier_edge">
+          <mxGeometry x="30" y="440" width="310" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="port_doc_in" value="in: negotiatedReqIn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#6366F1;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_doc">
+          <mxGeometry x="235" y="20" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="port_doc_out" value="out: accountabilityMatrixOut" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#6366F1;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_doc">
+          <mxGeometry x="5" y="60" width="80" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- SUB-TIER 3: NUVEM EXTERNA / LLM -->
+        <mxCell id="tier_cloud" value="Camada de Raciocínio Externo (LLM Nuvem)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#F59E0B;dashed=1;fontColor=#78350F;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="sys_box">
+          <mxGeometry x="760" y="50" width="290" height="630" as="geometry" />
+        </mxCell>
+
+        <!-- COMPONENTE: ExternalLLMReasoning -->
+        <mxCell id="cmp_llm" value="&lt;b&gt;Component: ExternalLLMReasoning&lt;/b&gt;&lt;hr&gt;&lt;div style='text-align: left; font-size: 10px;'&gt;• Google Gemini 2.0 Flash / Pro&lt;br&gt;• OpenAI GPT-4o / GPT-4o-mini&lt;br&gt;• Groq Llama 3.3 70B&lt;br&gt;• Contrato: Zero Retention Policy&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D97706;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="tier_cloud">
+          <mxGeometry x="20" y="240" width="250" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="port_llm_in" value="in: sanitizedPromptIn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_llm">
+          <mxGeometry x="5" y="45" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="port_llm_out" value="out: synthesizedReqOut" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontSize=9;fontStyle=1;" vertex="1" parent="cmp_llm">
+          <mxGeometry x="5" y="90" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- CONECTORES (ARROWS / PIPES) -->
+        <!-- 1. Input -> Parser -->
+        <mxCell id="conn_1" value="Connector: conn_input_to_parser&lt;br&gt;[protocol=HTTPS/JSON]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2563EB;fontColor=#1E3A8A;fontSize=9;" edge="1" parent="sys_box" source="port_input_out" target="port_parser_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Parser -> Guard -->
+        <mxCell id="conn_2" value="Connector: conn_parser_to_guard&lt;br&gt;[EdgeSanitizationPipe]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#10B981;fontColor=#065F46;fontSize=9;" edge="1" parent="sys_box" source="port_parser_out" target="port_guard_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Guard -> LLM (Cloud) -->
+        <mxCell id="conn_3" value="Connector: conn_guard_to_cloud&lt;br&gt;[ZeroStorageCloudRPC]&lt;br&gt;[Payload Sanitizado - Sem PII]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2.5;strokeColor=#EF4444;fontColor=#B91C1C;fontSize=9;" edge="1" parent="sys_box" source="port_guard_out" target="port_llm_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 4. LLM -> Doc Generator -->
+        <mxCell id="conn_4" value="Requisito Sintetizado (Privacy by Design)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#D97706;fontColor=#78350F;fontSize=9;" edge="1" parent="sys_box" source="port_llm_out" target="port_doc_in">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="380" />
+              <mxPoint x="730" y="505" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Doc Generator -> Local Vault -->
+        <mxCell id="conn_5" value="Connector: conn_vault_sync&lt;br&gt;[Matriz de Accountability + Backup JSON]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#059669;fontColor=#065F46;fontSize=9;" edge="1" parent="sys_box" source="port_doc_out" target="port_vault_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

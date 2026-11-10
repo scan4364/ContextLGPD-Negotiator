@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" modified="2026-11-10T00:25:00.000Z" agent="Mozilla/5.0" version="24.0.0" type="device">
+  <diagram id="bpmn_context_lgpd" name="Processo BPMN - Negociacao Contexto e LGPD">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- POOL DE NEGOCIAÇÃO -->
+        <mxCell id="pool1" value="Processo de Mediação entre Sistemas Sensíveis ao Contexto e a LGPD (BPMN 2.0)" style="swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;startSize=30;horizontal=0;horizontalFlip=1;fillColor=#F8FAFC;strokeColor=#334155;fontStyle=1;fontSize=13;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1080" height="720" as="geometry" />
+        </mxCell>
+
+        <!-- RAIA 1: ENGENHEIRO DE REQUISITOS -->
+        <mxCell id="lane1" value="Raia 1: Engenheiro de Requisitos / Desenvolvedor" style="swimlane;html=1;startSize=26;horizontal=0;fillColor=#EFF6FF;strokeColor=#3B82F6;fontColor=#1E3A8A;fontStyle=1;" vertex="1" parent="pool1">
+          <mxGeometry x="30" y="0" width="1050" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- EV-01: Start Event -->
+        <mxCell id="ev_start" value="Início da&lt;br&gt;Modelagem" style="shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=ellipsePerimeter;outline=standard;symbol=general;fillColor=#D1FAE5;strokeColor=#059669;" vertex="1" parent="lane1">
+          <mxGeometry x="40" y="90" width="40" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-01: Especificar Cenário -->
+        <mxCell id="act_01" value="Especificar Cenário &amp;amp;&lt;br&gt;Requisito Bruto&lt;br&gt;&lt;i&gt;(User Story, 4W, QoC)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#0F172A;fontSize=10;" vertex="1" parent="lane1">
+          <mxGeometry x="120" y="80" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-06: Validação Interativa -->
+        <mxCell id="act_06" value="Revisar e Refinar&lt;br&gt;Requisito Negociado&lt;br&gt;&lt;i&gt;(Chat Interativo com IA)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#0F172A;fontSize=10;" vertex="1" parent="lane1">
+          <mxGeometry x="780" y="80" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- RAIA 2: BORDA / PRIVACYGUARD -->
+        <mxCell id="lane2" value="Raia 2: ContextLGPD-Negotiator / PrivacyGuard (Borda)" style="swimlane;html=1;startSize=26;horizontal=0;fillColor=#F0FDF4;strokeColor=#10B981;fontColor=#065F46;fontStyle=1;" vertex="1" parent="pool1">
+          <mxGeometry x="30" y="220" width="1050" height="260" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-02: Decomposição 4W -->
+        <mxCell id="act_02" value="Decompor Vetor 4W &amp;amp;&lt;br&gt;Calibrar QoC Sensorial&lt;br&gt;&lt;i&gt;(ContextParserEngine)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#059669;strokeWidth=1.5;fontColor=#0F172A;fontSize=10;" vertex="1" parent="lane2">
+          <mxGeometry x="120" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- GW-01: Gateway XOR Conflito LGPD -->
+        <mxCell id="gw_01" value="Conflito com&lt;br&gt;os 3 Paradoxos&lt;br&gt;Detectado?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;fontSize=9;fontStyle=1;" vertex="1" parent="lane2">
+          <mxGeometry x="300" y="30" width="100" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-03: Gatilho Estrito -->
+        <mxCell id="act_03" value="Impor Gatilho Estrito&lt;br&gt;&lt;i&gt;(Desativar GPS contínuo;&lt;br&gt;Amostrar apenas em trânsito)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#EF4444;strokeWidth=1.5;fontColor=#7F1D1D;fontSize=10;" vertex="1" parent="lane2">
+          <mxGeometry x="440" y="40" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-04: Degradação e Mascaramento -->
+        <mxCell id="act_04" value="Degradar QoC e Mascarar&lt;br&gt;Tags Semânticas na Borda&lt;br&gt;&lt;i&gt;(Zero-Storage em RAM)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#EF4444;strokeWidth=1.5;fontColor=#7F1D1D;fontSize=10;" vertex="1" parent="lane2">
+          <mxGeometry x="620" y="40" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-05: Matriz de Accountability -->
+        <mxCell id="act_05" value="Gerar Matriz de&lt;br&gt;Accountability (Art. 6º, X)&lt;br&gt;&amp;amp; Relatório RIPD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#059669;strokeWidth=1.5;fontColor=#0F172A;fontSize=10;" vertex="1" parent="lane2">
+          <mxGeometry x="780" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- EV-02: End Event -->
+        <mxCell id="ev_end" value="Requisito&lt;br&gt;Homologado" style="shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;perimeter=ellipsePerimeter;outline=end;symbol=general;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="lane2">
+          <mxGeometry x="970" y="170" width="40" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- RAIA 3: NUVEM EXTERNA & AUDITORIA -->
+        <mxCell id="lane3" value="Raia 3: Provedor LLM Nuvem / Auditoria ANPD" style="swimlane;html=1;startSize=26;horizontal=0;fillColor=#FFFBEB;strokeColor=#F59E0B;fontColor=#78350F;fontStyle=1;" vertex="1" parent="pool1">
+          <mxGeometry x="30" y="480" width="1050" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- ACT-LLM: Raciocínio Semântico -->
+        <mxCell id="act_llm" value="Sintetizar Especificação&lt;br&gt;Privacy by Design&lt;br&gt;&lt;i&gt;(Política de Retenção Zero)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" vertex="1" parent="lane3">
+          <mxGeometry x="620" y="80" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- AUDIT-BOX: Auditoria da ANPD -->
+        <mxCell id="act_audit" value="Comprovação Técnica&lt;br&gt;perante Autoridade ANPD&lt;br&gt;&lt;i&gt;(Dever de Diligência)&lt;/i&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;fontSize=9;" vertex="1" parent="lane3">
+          <mxGeometry x="780" y="70" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- FLUXOS DE SEQUÊNCIA (EDGES) -->
+        <mxCell id="seq_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#2563EB;" edge="1" parent="pool1" source="ev_start" target="act_01">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#2563EB;" edge="1" parent="pool1" source="act_01" target="act_02">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#059669;" edge="1" parent="pool1" source="act_02" target="gw_01">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_4" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#EF4444;fontColor=#B91C1C;fontSize=9;" edge="1" parent="pool1" source="gw_01" target="act_03">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#EF4444;" edge="1" parent="pool1" source="act_03" target="act_04">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_6" value="Payload Sanitizado" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#EF4444;fontColor=#B91C1C;fontSize=9;" edge="1" parent="pool1" source="act_04" target="act_llm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_7" value="Requisito Reescrito" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#D97706;fontColor=#78350F;fontSize=9;" edge="1" parent="pool1" source="act_llm" target="act_05">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="420" />
+              <mxPoint x="850" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="seq_8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#059669;" edge="1" parent="pool1" source="act_05" target="act_06">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="seq_9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1.5;strokeColor=#2563EB;" edge="1" parent="pool1" source="act_06" target="ev_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="950" y="110" />
+              <mxPoint x="950" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="seq_10" value="Auditoria e Comprovação" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#D97706;fontColor=#78350F;fontSize=9;" edge="1" parent="pool1" source="act_05" target="act_audit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
