@@ -6,13 +6,21 @@ import Sidebar from '@/components/Sidebar';
 import Workspace from '@/components/Workspace';
 import EmptyWorkspace from '@/components/EmptyWorkspace';
 import UndoBanner from '@/components/UndoBanner';
+import LandingPage from '@/components/LandingPage';
 import SafetyModal from '@/components/modals/SafetyModal';
 import ScenarioModal from '@/components/modals/ScenarioModal';
 import NewProjectModal from '@/components/modals/NewProjectModal';
 import ManageProjectsModal from '@/components/modals/ManageProjectsModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 import TheoryModal from '@/components/modals/TheoryModal';
+import LogoutModal from '@/components/modals/LogoutModal';
 import { INITIAL_SCENARIOS } from '@/lib/constants';
+
+const DEFAULT_USER = {
+  name: 'Prof. Samuel Celso',
+  email: 'pesquisador@cin.ufpe.br',
+  institution: 'Centro de Informática (CIn) — UFPE'
+};
 
 const DEFAULT_PROJECT = {
   id: 'proj_default',
@@ -24,11 +32,11 @@ const DEFAULT_PROJECT = {
 };
 
 export default function Home() {
-  // Authentication & Persona
-  const [user] = useState({
-    name: 'Prof. Samuel Celso (CIn-UFPE)',
-    email: 'pesquisador@cin.ufpe.br'
-  });
+  // Authentication & Session
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [user, setUser] = useState(DEFAULT_USER);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // AI & Model Settings
   const [provider, setProvider] = useState('gemini');
@@ -122,6 +130,17 @@ export default function Home() {
   // =========================================================================
   useEffect(() => {
     try {
+      // 1. Check Session
+      const savedSession = localStorage.getItem('context_lgpd_session');
+      if (savedSession) {
+        const sessionData = JSON.parse(savedSession);
+        if (sessionData && sessionData.isLoggedIn) {
+          setIsLoggedIn(true);
+          if (sessionData.user) setUser(sessionData.user);
+        }
+      }
+
+      // 2. Projects & Scenarios
       const savedProjects = localStorage.getItem('context_lgpd_projects');
       const savedScenarios = localStorage.getItem('context_lgpd_scenarios');
       const savedActiveProjId = localStorage.getItem('context_lgpd_active_project_id');
@@ -164,7 +183,7 @@ export default function Home() {
         setTrashSnapshot(JSON.parse(savedTrash));
       }
 
-      // Settings & AI keys
+      // 3. Settings & AI keys
       const savedKey = localStorage.getItem('context_lgpd_api_key');
       if (savedKey) {
         setApiKey(savedKey);
@@ -179,13 +198,15 @@ export default function Home() {
       setLastSavedTime(lastSaved || new Date().toLocaleTimeString('pt-BR'));
     } catch (e) {
       console.error('Error loading saved state:', e);
+    } finally {
+      setIsInitializing(false);
     }
   }, []);
 
   // Safeguard: Prevent Unload when unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (isScenarioModalOpen && isFormDirty) {
+      if (isLoggedIn && isScenarioModalOpen && isFormDirty) {
         e.preventDefault();
         e.returnValue = 'Você possui alterações não salvas no formulário. Deseja realmente sair?';
         return e.returnValue;
@@ -193,10 +214,145 @@ export default function Home() {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isScenarioModalOpen, isFormDirty]);
+  }, [isLoggedIn, isScenarioModalOpen, isFormDirty]);
 
   // =========================================================================
-  // 2. PERSISTENCE HELPERS
+  // 2. AUTHENTICATION (LOGIN, REGISTER, LOGOUT)
+  // =========================================================================
+  const handleLoginWithJson = (parsedData) => {
+    try {
+      if (parsedData.user) {
+        setUser(parsedData.user);
+      }
+      if (Array.isArray(parsedData.projects)) {
+        setProjects(parsedData.projects);
+        localStorage.setItem('context_lgpd_projects', JSON.stringify(parsedData.projects));
+        const targetProj = parsedData.projects.find((p) => p.id === parsedData.activeProjectId) || parsedData.projects[0];
+        setActiveProjectId(targetProj.id);
+        setScenarios(targetProj.scenarios || []);
+        setChatMessages(targetProj.chatMessages || {});
+        if (targetProj.scenarios?.length > 0) setActiveScenarioId(targetProj.scenarios[0].id);
+      } else if (Array.isArray(parsedData.scenarios)) {
+        persistScenarios(parsedData.scenarios);
+        if (parsedData.chatMessages) persistChat(parsedData.chatMessages);
+        if (parsedData.scenarios.length > 0) setActiveScenarioId(parsedData.scenarios[0].id);
+      } else if (Array.isArray(parsedData)) {
+        persistScenarios(parsedData);
+        if (parsedData.length > 0) setActiveScenarioId(parsedData[0].id);
+      }
+
+      if (parsedData.apiKey) {
+        setApiKey(parsedData.apiKey);
+        setSavedMaskedKey(parsedData.apiKey.slice(0, 6) + '...' + parsedData.apiKey.slice(-4));
+        localStorage.setItem('context_lgpd_api_key', parsedData.apiKey);
+      }
+      if (parsedData.provider) {
+        setProvider(parsedData.provider);
+        localStorage.setItem('context_lgpd_provider', parsedData.provider);
+      }
+      if (parsedData.model) {
+        setModel(parsedData.model);
+        localStorage.setItem('context_lgpd_model', parsedData.model);
+      }
+
+      const sessionObj = {
+        isLoggedIn: true,
+        user: parsedData.user || user,
+        loginAt: new Date().toISOString()
+      };
+      localStorage.setItem('context_lgpd_session', JSON.stringify(sessionObj));
+      setIsLoggedIn(true);
+    } catch (err) {
+      alert('Erro ao carregar dados do arquivo JSON: ' + err.message);
+    }
+  };
+
+  const handleRegisterUser = (regData) => {
+    const newUser = {
+      name: regData.name.trim(),
+      email: regData.email.trim(),
+      institution: regData.institution.trim()
+    };
+    setUser(newUser);
+
+    const initialProj = {
+      id: 'proj_' + Date.now(),
+      name: regData.initialProjectName.trim(),
+      description: 'Projeto registrado no cofre local do CIn-UFPE',
+      createdAt: new Date().toISOString(),
+      scenarios: regData.template === 'benchmark' ? JSON.parse(JSON.stringify(INITIAL_SCENARIOS)) : [],
+      chatMessages: {}
+    };
+
+    setProjects([initialProj]);
+    setActiveProjectId(initialProj.id);
+    setScenarios(initialProj.scenarios);
+    setChatMessages({});
+    if (initialProj.scenarios.length > 0) {
+      setActiveScenarioId(initialProj.scenarios[0].id);
+    } else {
+      setActiveScenarioId(null);
+    }
+
+    try {
+      localStorage.setItem('context_lgpd_projects', JSON.stringify([initialProj]));
+      localStorage.setItem('context_lgpd_active_project_id', initialProj.id);
+      localStorage.setItem('context_lgpd_scenarios', JSON.stringify(initialProj.scenarios));
+      localStorage.setItem('context_lgpd_chats', JSON.stringify({}));
+      localStorage.setItem(
+        'context_lgpd_session',
+        JSON.stringify({ isLoggedIn: true, user: newUser, loginAt: new Date().toISOString() })
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    setIsLoggedIn(true);
+  };
+
+  const handleQuickStartBenchmark = () => {
+    setUser(DEFAULT_USER);
+    setProjects([DEFAULT_PROJECT]);
+    setActiveProjectId('proj_default');
+    setScenarios(INITIAL_SCENARIOS);
+    setActiveScenarioId(INITIAL_SCENARIOS[0].id);
+    setChatMessages({});
+
+    try {
+      localStorage.setItem('context_lgpd_projects', JSON.stringify([DEFAULT_PROJECT]));
+      localStorage.setItem('context_lgpd_active_project_id', 'proj_default');
+      localStorage.setItem('context_lgpd_scenarios', JSON.stringify(INITIAL_SCENARIOS));
+      localStorage.setItem('context_lgpd_chats', JSON.stringify({}));
+      localStorage.setItem(
+        'context_lgpd_session',
+        JSON.stringify({ isLoggedIn: true, user: DEFAULT_USER, loginAt: new Date().toISOString() })
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    setIsLoggedIn(true);
+  };
+
+  const handleLogoutWithBackup = () => {
+    handleExportJsonBackup();
+    performLogout();
+  };
+
+  const handleLogoutDirect = () => {
+    performLogout();
+  };
+
+  const performLogout = () => {
+    try {
+      localStorage.removeItem('context_lgpd_session');
+    } catch (e) {}
+    setIsLoggedIn(false);
+    setIsLogoutModalOpen(false);
+  };
+
+  // =========================================================================
+  // 3. PERSISTENCE HELPERS
   // =========================================================================
   const persistScenarios = (newScenarios) => {
     setScenarios(newScenarios);
@@ -299,7 +455,7 @@ export default function Home() {
   });
 
   // =========================================================================
-  // 3. PROJECT ACTIONS
+  // 4. PROJECT ACTIONS
   // =========================================================================
   const handleSwitchProject = (projectId) => {
     const target = projects.find((p) => p.id === projectId);
@@ -414,7 +570,7 @@ export default function Home() {
   };
 
   // =========================================================================
-  // 4. WORKSPACE SAFETY ACTIONS
+  // 5. WORKSPACE SAFETY ACTIONS
   // =========================================================================
   const requestClearWorkspace = () => {
     if (scenarios.length === 0) {
@@ -500,7 +656,7 @@ export default function Home() {
   };
 
   // =========================================================================
-  // 5. SCENARIO CREATION & EDITING
+  // 6. SCENARIO CREATION & EDITING
   // =========================================================================
   const handleOpenCreateScenario = () => {
     setEditingScenarioId(null);
@@ -619,7 +775,7 @@ export default function Home() {
   };
 
   // =========================================================================
-  // 6. NEGOTIATION & CHAT ACTIONS
+  // 7. NEGOTIATION & CHAT ACTIONS
   // =========================================================================
   const handleNegotiateScenario = async (scn) => {
     setIsNegotiating(true);
@@ -725,7 +881,7 @@ export default function Home() {
   };
 
   // =========================================================================
-  // 7. BACKUP & EXPORT
+  // 8. BACKUP & EXPORT
   // =========================================================================
   const handleExportJsonBackup = () => {
     const backupData = {
@@ -757,25 +913,8 @@ export default function Home() {
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target.result);
-        if (Array.isArray(parsed.projects)) {
-          setProjects(parsed.projects);
-          localStorage.setItem('context_lgpd_projects', JSON.stringify(parsed.projects));
-          const targetProj = parsed.projects.find((p) => p.id === parsed.activeProjectId) || parsed.projects[0];
-          setActiveProjectId(targetProj.id);
-          setScenarios(targetProj.scenarios || []);
-          setChatMessages(targetProj.chatMessages || {});
-          if (targetProj.scenarios?.length > 0) setActiveScenarioId(targetProj.scenarios[0].id);
-          alert(`Backup completo restaurado com sucesso! ${parsed.projects.length} projeto(s) carregado(s).`);
-        } else if (Array.isArray(parsed.scenarios)) {
-          persistScenarios(parsed.scenarios);
-          if (parsed.chatMessages) persistChat(parsed.chatMessages);
-          if (parsed.scenarios.length > 0) setActiveScenarioId(parsed.scenarios[0].id);
-          alert(`Cenários restaurados com sucesso! ${parsed.scenarios.length} carregados.`);
-        } else if (Array.isArray(parsed)) {
-          persistScenarios(parsed);
-          if (parsed.length > 0) setActiveScenarioId(parsed[0].id);
-          alert('Cenários carregados com sucesso!');
-        }
+        handleLoginWithJson(parsed);
+        alert('Cofre restaurado com sucesso!');
       } catch (err) {
         alert('Erro ao processar JSON: ' + err.message);
       }
@@ -786,7 +925,7 @@ export default function Home() {
 
   const handleExportMarkdown = () => {
     let md = `# RELATÓRIO DE ENGENHARIA DE REQUISITOS SENSÍVEIS AO CONTEXTO & LGPD\n\n`;
-    md += `**Instituição:** Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE)\n`;
+    md += `**Instituição:** ${user.institution || 'Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE)'}\n`;
     md += `**Pesquisador:** ${user.name}\n`;
     md += `**Projeto Atual:** ${activeProject.name}\n`;
     md += `**Data:** ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}\n`;
@@ -849,7 +988,7 @@ export default function Home() {
   };
 
   // =========================================================================
-  // 8. SETTINGS ACTIONS
+  // 9. SETTINGS ACTIONS
   // =========================================================================
   const handleSaveApiSettings = (e) => {
     e.preventDefault();
@@ -882,12 +1021,44 @@ export default function Home() {
     }
   };
 
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-xs">
+        Carregando cofre de requisitos...
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // RENDER: LANDING PAGE (IF NOT LOGGED IN)
+  // =========================================================================
+  if (!isLoggedIn) {
+    return (
+      <>
+        <LandingPage
+          onLoginWithJson={handleLoginWithJson}
+          onRegisterUser={handleRegisterUser}
+          onQuickStartBenchmark={handleQuickStartBenchmark}
+          onOpenTheory={() => setIsTheoryOpen(true)}
+        />
+        <TheoryModal
+          isOpen={isTheoryOpen}
+          onClose={() => setIsTheoryOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // =========================================================================
+  // RENDER: LOGGED-IN WORKSPACE
+  // =========================================================================
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
       <input type="file" ref={fileInputRef} onChange={handleImportJsonBackup} accept=".json" className="hidden" />
 
-      {/* TOP NAVBAR */}
+      {/* CLEAN, DECLUTTERED TOP NAVBAR */}
       <Header
+        user={user}
         activeProject={activeProject}
         projects={projects}
         onSwitchProject={handleSwitchProject}
@@ -900,6 +1071,8 @@ export default function Home() {
         onOpenTheory={() => setIsTheoryOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onExportMarkdown={handleExportMarkdown}
+        onExportJson={handleExportJsonBackup}
+        onRequestLogout={() => setIsLogoutModalOpen(true)}
       />
 
       {/* WORKSPACE AREA */}
@@ -962,6 +1135,14 @@ export default function Home() {
         hasTrash={!!trashSnapshot}
         onUndo={handleUndoLastAction}
         onClose={() => setUndoBanner((prev) => ({ ...prev, visible: false }))}
+      />
+
+      {/* LOGOUT SAFEGUARD MODAL */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onLogoutWithBackup={handleLogoutWithBackup}
+        onLogoutDirect={handleLogoutDirect}
       />
 
       {/* MODALS */}
