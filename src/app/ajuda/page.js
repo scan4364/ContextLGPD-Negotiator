@@ -284,7 +284,41 @@ export default function AjudaPage() {
             </Link>
           </div>
         </section>
+
+        {/* Section 5: Autoria e Créditos de Desenvolvimento */}
+        <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3 text-xs">
+          <div className="flex items-center space-x-2 text-slate-900">
+            <User className="w-5 h-5 text-teal-600" />
+            <h2 className="text-base font-bold uppercase tracking-wider">
+              5. Autoria e Créditos de Desenvolvimento
+            </h2>
+          </div>
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 leading-relaxed text-slate-700">
+            <p>
+              <b>Desenvolvido por:</b> <span className="font-bold text-slate-900">Samuel Anjos Neto</span>
+            </p>
+            <p>
+              <b>Instituição:</b> Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE)
+            </p>
+            <p>
+              <b>Pesquisa:</b> <i>"Negociação entre Sistemas Sensíveis a Amplo Contexto e a LGPD por meio da Engenharia de Requisitos de Software"</i>
+            </p>
+            <p className="text-[11px] text-slate-500 pt-1">
+              Recife – PE, Brasil • Arquitetura de Requisitos Sensíveis ao Contexto, Privacy by Design e Mitigação dos Paradoxos Regulatórios da Lei nº 13.709/2018.
+            </p>
+          </div>
+        </section>
       </main>
+
+      {/* Footer com Créditos */}
+      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white space-y-1">
+        <p className="font-semibold text-slate-800">
+          Desenvolvido por <span className="text-slate-900 font-bold">Samuel Anjos Neto</span>
+        </p>
+        <p className="text-slate-500 text-[11px]">
+          Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE) • Recife – PE, Brasil
+        </p>
+      </footer>
     </div>
   );
 }

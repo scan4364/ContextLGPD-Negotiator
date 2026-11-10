@@ -2,7 +2,7 @@
 ### Mediação entre Sistemas Sensíveis ao Contexto e a LGPD por meio da Engenharia de Requisitos de Software
 
 > **Trabalho Acadêmico & Sistema de Software em Next.js**  
-> **Autor:** Samuel Celso dos Anjos Neto  
+> **Desenvolvido por:** Samuel Anjos Neto  
 > **Instituição:** Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE), Recife – PE, Brasil.
 
 ---

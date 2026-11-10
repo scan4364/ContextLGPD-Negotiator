@@ -280,6 +280,11 @@ export default function Header({
                     <span>Sair da Sessão (Logout Seguro)</span>
                   </button>
                 </div>
+
+                {/* Development Credit */}
+                <div className="mt-1 pt-1.5 border-t border-slate-100 text-center text-[10px] text-slate-400">
+                  Desenvolvido por <span className="font-semibold text-slate-600">Samuel Anjos Neto</span> • CIn-UFPE
+                </div>
               </div>
             )}
           </div>

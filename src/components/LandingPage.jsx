@@ -28,7 +28,7 @@ export default function LandingPage({
   const [jsonParsedData, setJsonParsedData] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [regForm, setRegForm] = useState({
-    name: '',
+    name: 'Samuel Anjos Neto',
     institution: 'Centro de Informática (CIn) — UFPE',
     email: '',
     initialProjectName: 'Pesquisa em Sistemas Sensíveis ao Contexto',
@@ -404,9 +404,14 @@ export default function LandingPage({
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white">
-        Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE) • Recife – PE, Brasil
+      {/* Footer com Créditos de Desenvolvimento */}
+      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white space-y-1">
+        <p className="font-semibold text-slate-800">
+          Desenvolvido por <span className="text-slate-900 font-bold">Samuel Anjos Neto</span>
+        </p>
+        <p className="text-slate-500 text-[11px]">
+          Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE) • Recife – PE, Brasil
+        </p>
       </footer>
     </div>
   );

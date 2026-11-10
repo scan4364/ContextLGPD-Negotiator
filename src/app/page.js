@@ -17,7 +17,7 @@ import LogoutModal from '@/components/modals/LogoutModal';
 import { INITIAL_SCENARIOS } from '@/lib/constants';
 
 const DEFAULT_USER = {
-  name: 'Prof. Samuel Celso',
+  name: 'Samuel Anjos Neto',
   email: 'pesquisador@cin.ufpe.br',
   institution: 'Centro de Informática (CIn) — UFPE'
 };
@@ -926,7 +926,7 @@ export default function Home() {
   const handleExportMarkdown = () => {
     let md = `# RELATÓRIO DE ENGENHARIA DE REQUISITOS SENSÍVEIS AO CONTEXTO & LGPD\n\n`;
     md += `**Instituição:** ${user.institution || 'Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE)'}\n`;
-    md += `**Pesquisador:** ${user.name}\n`;
+    md += `**Desenvolvido por:** ${user.name || 'Samuel Anjos Neto'}\n`;
     md += `**Projeto Atual:** ${activeProject.name}\n`;
     md += `**Data:** ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}\n`;
     md += `**Metodologia:** Notação Formal de Cenários de Usuário & Privacy by Design (Art. 6º e 33 da LGPD)\n\n`;
@@ -1127,6 +1127,18 @@ export default function Home() {
           />
         )}
       </div>
+
+      {/* FOOTER COM CRÉDITOS DE DESENVOLVIMENTO */}
+      <footer className="py-4 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-[11px] gap-1">
+          <p>
+            <b>ContextLGPD-Negotiator</b> • Desenvolvido por <span className="font-bold text-slate-800">Samuel Anjos Neto</span>
+          </p>
+          <p className="text-slate-500">
+            Centro de Informática (CIn) — Universidade Federal de Pernambuco (UFPE) • Recife – PE
+          </p>
+        </div>
+      </footer>
 
       {/* DISASTER RECOVERY & UNDO BANNER */}
       <UndoBanner
