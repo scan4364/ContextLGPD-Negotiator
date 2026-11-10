@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   ShieldCheck,
   FolderKanban,
@@ -36,7 +37,8 @@ import {
   Activity,
   Layers,
   ArrowRight,
-  FileText
+  FileText,
+  HelpCircle
 } from 'lucide-react';
 import { INITIAL_SCENARIOS } from '@/lib/constants';
 
@@ -569,6 +571,14 @@ export default function Home() {
               <Bot className="w-3.5 h-3.5 text-blue-600" />
               <span>{model}</span>
             </div>
+
+            <Link
+              href="/ajuda"
+              className="text-xs font-medium text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition flex items-center space-x-1"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+              <span>Guia de Ajuda</span>
+            </Link>
 
             <button
               onClick={() => setIsTheoryOpen(true)}

@@ -5,7 +5,7 @@ export const INITIAL_SCENARIOS = [
     title: 'Alerta Proativo de Trânsito no Deslocamento Urbano',
     actor: 'Motorista em Trânsito',
     user_story: 'Como motorista em horário de pico, quero receber alertas preditivos de congestionamento e acidentes, para que eu possa desviar a rota antes de ficar preso no tráfego.',
-    pre_conditions: 'Usuário autenticado no app; dispositivo móvel em deslocamento veicular; permissões de acelerômetro concedidas; conexão de rede móvel disponível.',
+    pre_conditions: 'Usuário autenticado no app; dispositivo móvel no veículo; permissões de acelerômetro ativas; conexão de dados móveis disponível.',
     context_dimensions: {
       where: 'Espaço geográfico urbano; malha viária; precisão de localização variável',
       who: 'Identificador do aparelho e histórico pessoal de viagens cotidianas',
@@ -18,18 +18,17 @@ export const INITIAL_SCENARIOS = [
     },
     trigger_event: 'Acelerômetro detecta velocidade linear sustentada > 15 km/h por mais de 30 segundos consecutivos.',
     main_flow: [
-      '1. O usuário inicia a viagem em seu veículo com o smartphone no painel.',
-      '2. O subsistema na borda amostra o acelerômetro periodicamente a cada 30 segundos.',
-      '3. O evento de gatilho é disparado quando a velocidade sustentada ultrapassa 15 km/h.',
-      '4. O subsistema de localização é acionado com precisão degradada de 100m (QoC calibrada).',
-      '5. O componente PrivacyGuard na borda converte as coordenadas na tag semântica "Via_Expressa_Norte".',
-      '6. O dado bruto de GPS é descartado imediatamente da memória RAM (Zero-Storage).',
-      '7. A janela com a tag semântica é transmitida à LLM externa via canal criptografado.',
-      '8. A recomendação de desvio é exibida ao motorista com antecedência hábil.'
+      '1. [Ator]: Motorista entra no veículo, posiciona o smartphone no painel e inicia a viagem.',
+      '2. [Contexto/Borda]: O subsistema local no dispositivo amostra o acelerômetro a cada 30 segundos em memória volátil.',
+      '3. [Gatilho]: O algoritmo de inferência detecta velocidade linear > 15 km/h sustentada por 30 segundos.',
+      '4. [QoC/Calibração]: O receptor GPS é ativado sob demanda com precisão degradada para raio de 100 metros.',
+      '5. [PrivacyGuard]: O filtro de privacidade na borda converte as coordenadas na tag semântica "Via_Expressa_Norte" e descarta as coordenadas brutas da RAM.',
+      '6. [LLM Nuvem]: A requisição sanitizada contendo apenas a situação semântica é encaminhada ao modelo em nuvem com política de retenção zero.',
+      '7. [Sistema]: O assistente recebe a sugestão e exibe o alerta de rota alternativa na tela do motorista com antecedência hábil.'
     ],
     alternative_flows: [
-      'Fluxo Alternativo 1 (Veículo Estático): Se velocidade < 5 km/h por mais de 5 minutos, desativar GPS e amostragem imediatamente (Princípio da Minimização).',
-      'Fluxo de Exceção 2 (Perda de Conexão): Utilizar cache local offline de rotas sem efetuar chamada à nuvem internacional.'
+      'Fluxo Alternativo 1 [Veículo Estático]: Se a velocidade cair abaixo de 5 km/h por mais de 5 minutos, o sistema desativa o GPS imediatamente para cumprir o princípio da minimização.',
+      'Fluxo de Exceção 2 [Perda de Conexão]: Em caso de falta de sinal de rede, o sistema utiliza o catálogo local de rotas offline sem transferir dados para a nuvem externa.'
     ],
     acceptance_criteria: [
       {
@@ -81,13 +80,13 @@ export const INITIAL_SCENARIOS = [
     },
     trigger_event: 'Variação da frequência cardíaca (HRV < 20ms) sustentada por 15 minutos em conjunto com cadência de digitação irregular.',
     main_flow: [
-      '1. O usuário trabalha conectado ao computador utilizando o smartwatch.',
-      '2. O dispositivo vestível monitora localmente o pulso cardíaco em memória volátil.',
-      '3. Apenas quando a variabilidade HRV cai abaixo de 20ms por 15min, o gatilho é disparado.',
-      '4. O microfone não grava voz, apenas quantifica a intensidade sonora média em decibéis (dB).',
-      '5. O PrivacyGuard gera um índice numérico abstrato de sobrecarga ("Índice_Estresse: 7.8").',
-      '6. Apenas o índice abstrato é enviado à LLM médica externa, descartando as ondas biométricas.',
-      '7. O assistente sugere um intervalo de descompressão ao usuário.'
+      '1. [Ator]: Profissional trabalha em sua estação conectado ao computador utilizando o smartwatch.',
+      '2. [Contexto/Borda]: O smartwatch monitora a variabilidade R-R localmente na memória do dispositivo sem transmitir sinais brutos.',
+      '3. [Gatilho]: O algoritmo de saúde detecta que a HRV permaneceu abaixo de 20ms por mais de 15 minutos.',
+      '4. [QoC/Calibração]: O sensor de som realiza apenas medição escalar de decibéis (dB), sem efetuar gravação de voz.',
+      '5. [PrivacyGuard]: O componente sintetiza o estado num índice abstrato ("Índice_Sobrecarga: 8.2") e pseudonimiza a identidade.',
+      '6. [LLM Nuvem]: Apenas o índice contextual numérico é enviado para o modelo de saúde em nuvem externa.',
+      '7. [Sistema]: O assistente sugere um intervalo de descompressão e exercícios de respiração ao usuário.'
     ],
     alternative_flows: [
       'Fluxo de Recusa: Caso o usuário desative a medição biométrica, o sistema estima o tempo de trabalho apenas pela agenda.'
@@ -131,11 +130,13 @@ export const INITIAL_SCENARIOS = [
     },
     trigger_event: 'Início do evento agendado com status "Em Andamento" na agenda e presença confirmada de 2 ou mais pessoas.',
     main_flow: [
-      '1. Os participantes ingressam na sala no horário estipulado na agenda.',
-      '2. O assistente exibe aviso explícito de gravação para conformidade de transparência.',
-      '3. O microfone realiza transcrição fonética local na borda, anonimizando dados bancários e senhas.',
-      '4. Ao final da chamada, a transcrição filtrada é sumarizada por LLM com retenção zero de dados.',
-      '5. A ata é gerada e encaminhada aos e-mails dos participantes.'
+      '1. [Ator]: Os participantes ingressam na sala no horário estipulado na agenda corporativa.',
+      '2. [Sistema]: O assistente exibe aviso explícito de início da gravação para conformidade de transparência.',
+      '3. [Contexto/Borda]: O microfone realiza transcrição fonética local na borda, anonimizando dados bancários e senhas.',
+      '4. [Gatilho/Término]: Ao término do horário ou saída das pessoas, a transcrição é consolidada.',
+      '5. [PrivacyGuard]: Nomes de clientes e identificadores diretos são mascarados com tokens anônimos.',
+      '6. [LLM Nuvem]: O resumo estruturado de decisões é gerado pela LLM sem persistência na nuvem.',
+      '7. [Sistema]: A ata é entregue aos e-mails corporativos dos presentes e o áudio da RAM é destruído.'
     ],
     alternative_flows: [
       'Fluxo de Encerramento Antecipado: Caso todos os participantes saiam antes do tempo previsto, a gravação encerra de imediato.'
@@ -179,11 +180,12 @@ export const INITIAL_SCENARIOS = [
     },
     trigger_event: 'Permanência física estática comprovada por mais de 120 segundos no raio de 10 metros de uma loja cadastrada.',
     main_flow: [
-      '1. O consumidor passeia pelos corredores do shopping center.',
-      '2. O aplicativo detecta sinal de BLE Beacon local sem registrar a localização GPS global.',
-      '3. Apenas após 120 segundos de permanência diante da loja X, o cupom contextual é disparado.',
-      '4. O histórico de lojas visitadas permanece armazenado apenas no dispositivo do usuário.',
-      '5. O servidor de anúncios recebe apenas a confirmação de que um cupom foi exibido, sem a trajetória física do cliente.'
+      '1. [Ator]: O consumidor caminha pelos corredores do shopping center.',
+      '2. [Contexto/Borda]: O aplicativo detecta sinal de BLE Beacon local sem registrar a localização GPS global.',
+      '3. [Gatilho]: O cronômetro de permanência atinge 120 segundos contínuos diante do estabelecimento parceiro.',
+      '4. [PrivacyGuard]: O histórico de lojas visitadas permanece no aparelho e gera apenas o identificador anônimo do cupom.',
+      '5. [LLM Nuvem]: O motor de recomendações recebe a solicitação sem receber a trajetória física do usuário.',
+      '6. [Sistema]: O cupom de desconto personalizado é exibido na tela do consumidor.'
     ],
     alternative_flows: [
       'Fluxo de Passagem Rápida: Se o usuário apenas passar caminhando sem parar por 120s, nenhum evento de publicidade é emitido.'
