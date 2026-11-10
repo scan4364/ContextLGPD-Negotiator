@@ -9,7 +9,7 @@
 
 ## 📌 Visão Geral do Sistema
 
-O **ContextLGPD-Negotiator** é um sistema completo em **Next.js (App Router)** projetado para operacionalizar a mediação entre a **Computação Sensível ao Contexto** (Dey, 2001; Abowd et al., 1999) e a **Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)** através da Engenharia de Requisitos de Software.
+O **ContextLGPD-Negotiator** é um sistema completo desenvolvido em **Next.js (App Router)** para operacionalizar a conciliação entre a **Computação Sensível ao Contexto** (Dey, 2001; Abowd et al., 1999) e a **Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)** através da Engenharia de Requisitos de Software.
 
 O sistema substitui o paradigma de *chat livre com IA* por uma **Tabela Interativa de Cenários de Usuário**:
 1. O desenvolvedor/engenheiro especifica os cenários com as variáveis contextuais implícitas (Where, Who, When, What, Sensores, QoC e Gatilhos).
@@ -18,17 +18,30 @@ O sistema substitui o paradigma de *chat livre com IA* por uma **Tabela Interati
 
 ---
 
+## 💾 Banco de Dados Integrado (Zero-Configuração)
+
+Para eliminar qualquer necessidade de serviços externos pagos ou limitados:
+- **SEM Supabase:** Você **não precisa** de conta no Supabase nem de bancos de dados externos.
+- **SEM GitHub Actions:** Você **não precisa** ativar ou configurar nenhum workflow no GitHub.
+- **Armazenamento Integrado & Persistente:** O sistema gerencia os dados de forma nativa e persistente no próprio navegador e estado da aplicação.
+- **Backup & Restauração com 1 Clique:**
+  - Botão **"Backup JSON"** para baixar um arquivo completo com todos os seus cenários, histórico de negociações e configurações.
+  - Botão **"Importar JSON"** para carregar cenários salvos em qualquer computador ou navegador.
+  - Botão **"⚡ Restaurar Cenários do Artigo"** para recarregar instantaneamente os 4 cenários clássicos do pré-artigo científico (CIn-UFPE).
+
+---
+
 ## 🚀 Como Enviar para o GitHub e Vercel
 
-O projeto foi totalmente configurado e testado em **Next.js 16** com rotas serverless, sendo 100% compatível com a **Vercel** com zero esforço de configuração.
+O projeto foi totalmente construído e validado em **Next.js 16** com rotas serverless, sendo 100% pronto para a **Vercel** com zero esforço de configuração.
 
 ### Passo 1: Enviar para o GitHub
 No seu terminal (na pasta do projeto), execute:
 ```bash
-# 1. Renomear o branch para main
+# 1. Definir o branch principal como main
 git branch -M main
 
-# 2. Vincular ao seu repositório no GitHub (crie um repo vazio no github.com)
+# 2. Conectar com o seu repositório no GitHub (crie um repo vazio no github.com)
 git remote add origin https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
 
 # 3. Fazer o push dos arquivos
@@ -37,13 +50,10 @@ git push -u origin main
 
 ### Passo 2: Fazer o Deploy na Vercel
 1. Acesse **[vercel.com](https://vercel.com)** e faça login com seu GitHub.
-2. Clique em **"Add New..."** ➔ **"Project"**.
-3. Selecione o repositório `contexto-computacional` e clique em **Import**.
-4. O framework **Next.js** será detectado automaticamente.
-5. (Opcional) Em **Environment Variables**, você pode adicionar:
-   - `NEXT_PUBLIC_SUPABASE_URL`: sua URL do Supabase
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: sua chave anon do Supabase
-6. Clique em **Deploy**! Em menos de 1 minuto seu sistema estará online no ar.
+2. Clique no botão **"Add New..."** ➔ **"Project"**.
+3. Selecione o repositório e clique em **Import**.
+4. O framework **Next.js** é detectado automaticamente.
+5. Clique em **Deploy**! Em menos de 1 minuto seu sistema estará no ar.
 
 ---
 
@@ -53,34 +63,24 @@ git push -u origin main
 # 1. Instalar dependências
 npm install
 
-# 2. Iniciar servidor de desenvolvimento Next.js
+# 2. Iniciar servidor de desenvolvimento
 npm run dev
 
-# Ou rodar a build de produção:
+# Ou compilar para produção:
 npm run build
 npm start
 ```
-Abra: **[http://localhost:3000](http://localhost:3000)**
+Acesse: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-## ☁️ Banco de Dados Online 24/7 (Supabase na Nuvem)
+## 🔒 Modelos de IA e Segurança de Chaves
 
-Para que os cenários permaneçam salvos o tempo todo na nuvem mesmo em ambientes serverless como a Vercel:
-1. Crie um projeto gratuito no [Supabase](https://supabase.com).
-2. Vá no **SQL Editor** do Supabase e cole o conteúdo do arquivo [`supabase_schema.sql`](supabase_schema.sql).
-3. Na aplicação, clique em **"Chave API & Nuvem"** ➔ aba **"Banco Online (Supabase)"** e insira a URL e a Anon Key.
-4. O sistema também possui um cofre local persistente para uso imediato mesmo sem internet!
-
----
-
-## 🔒 Segurança Criptográfica e Modelos de IA Suportados
-
-- **Modelos Compatíveis:**
-  - **Google Gemini:** `gemini-2.0-flash` (Recomendado), `gemini-1.5-pro` (Long-Context de 2M tokens), `gemini-1.5-flash`.
+- **Modelos Suportados:**
+  - **Google Gemini:** `gemini-2.0-flash` (Padrão recomendado), `gemini-1.5-pro` (Long-Context de 2M tokens), `gemini-1.5-flash`.
   - **OpenAI:** `gpt-4o`, `gpt-4o-mini`.
   - **Groq:** `llama-3.3-70b-versatile`.
-  - **Motor Especialista Local (Regras ADL ACME):** Opera offline caso nenhuma chave seja inserida de imediato.
+  - **Motor Especialista Local (Regras ADL ACME):** Opera offline mesmo sem chave de API informada.
 - **Proteção:** As chaves de API nunca são expostas na tela nem salvas em texto puro desprotegido, operando com mascaramento no front-end.
 
 ---
